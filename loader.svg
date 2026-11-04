@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+     style="display:block;background:#090a0f">
+  <title>Mono</title>
+  <desc>Pulls Mono from jsDelivr and runs it full screen.</desc>
+
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#1b1f2b"/>
+      <stop offset="100%" stop-color="#090a0f"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#glow)"/>
+
+  <!-- centered in px, so nothing depends on viewport aspect ratio -->
+  <g id="boot" transform="translate(-60 -60)">
+    <svg x="50%" y="50%" width="120" height="120" viewBox="-60 -60 120 120"
+         fill="none" stroke="#8b93a7" stroke-width="2">
+      <circle cx="0" cy="0" r="21" stroke-opacity="0.22"/>
+      <path d="M0 -21a21 21 0 0 1 21 21" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate"
+                          from="0 0 0" to="360 0 0 0" dur="0.9s" repeatCount="indefinite"/>
+      </path>
+    </svg>
+  </g>
+
+  <g id="bootText" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="50%" y="50%" dy="48" text-anchor="middle"
+          font-size="15" letter-spacing="3" fill="#c9cedb" fill-opacity="0.85">MONO</text>
+    <text x="50%" y="50%" dy="72" text-anchor="middle"
+          font-size="11.5" letter-spacing="1.5" fill="#7d8496">loading</text>
+  </g>
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;margin:0;padding:0;overflow:hidden">
+      <iframe id="monoFrame" title="Mono" src="about:blank"
+              allow="fullscreen; autoplay; clipboard-read; clipboard-write; encrypted-media"
+              allowfullscreen="allowfullscreen"
+              style="display:block;width:100%;height:100%;border:0;margin:0;padding:0;background:transparent"></iframe>
+    </div>
+  </foreignObject>
+
+  <script type="text/javascript"><![CDATA[
+    /* jsDelivr serves .html as text/plain, so a plain iframe src would show
+       source. Fetch the file and hand the markup to the frame instead.
+       Override the target with loader.svg?u=<encoded url> */
+    (function () {
+      var DEFAULT = 'https://cdn.jsdelivr.net/gh/NoobVrGT/Mono@main/Mono.html';
+      var frame = document.getElementById('monoFrame');
+      var boot = [document.getElementById('boot'), document.getElementById('bootText')];
+
+      function target() {
+        try {
+          var q = new URLSearchParams(window.location.search).get('u');
+          return (q || DEFAULT);
+        } catch (e) { return DEFAULT; }
+      }
+
+      function baseOf(url) {
+        return String(url).replace(/[^/]*$/, '');
+      }
+
+      /* Relative ./proxy/... paths must resolve against the CDN, not against
+         wherever this loader happens to live. */
+      function withBase(html, url) {
+        var tag = '<base href="' + baseOf(url) + '">';
+        if (/<head[^>]*>/i.test(html)) {
+          return html.replace(/<head[^>]*>/i, function (m) { return m + tag; });
+        }
+        return tag + html;
+      }
+
+      function hideBoot() {
+        boot.forEach(function (el) { if (el) el.style.display = 'none'; });
+      }
+
+      function fail(msg) {
+        hideBoot();
+        frame.srcdoc = '<!doctype html><meta charset="utf-8"><style>' +
+          'html,body{margin:0;height:100%;background:#090a0f;color:#c9cedb;' +
+          'font:14px/1.7 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;' +
+          'display:flex;align-items:center;justify-content:center;text-align:center}' +
+          'p{margin:0 0 10px}small{color:#7d8496;letter-spacing:3px;font-size:11px}' +
+          'code{color:#7d8496;font-size:12px}a{color:#9db4ff;text-decoration:none;' +
+          'border-bottom:1px solid rgba(157,180,255,.45)}</style>' +
+          '<div><small>MONO</small><p>Could not reach the CDN.</p>' +
+          '<p><code>' + String(msg) + '</code></p>' +
+          '<p><a href="#" id="again">try again</a></p></div>' +
+          '<script>document.getElementById("again").onclick=function(e){e.preventDefault();location.reload()}<\/script>';
+      }
+
+      var url = target();
+      fetch(url, { cache: 'no-store' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        })
+        .then(function (html) {
+          if (!/<\s*(!doctype|html)/i.test(html)) throw new Error('not an html document');
+          frame.addEventListener('load', hideBoot);
+          frame.srcdoc = withBase(html, url);
+        })
+        .catch(function (e) { fail(e && e.message ? e.message : 'unknown error'); });
+    })();
+  ]]></script>
+</svg>
