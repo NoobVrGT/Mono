@@ -4084,6 +4084,30 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 
   /* ---------------- events ---------------- */
 
+  els.newTabBtn.addEventListener('click', function () {
+    if (mode !== 'browser') setMode('browser');
+    createTab();
+    els.omni.focus();
+  });
+
+  navItems.forEach(function (item) {
+    item.addEventListener('click', function () { setMode(item.dataset.mode); });
+  });
+
+  els.linkForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var link = linkFromInput(els.linkInput.value);
+    if (!link) { toast('That link did not look right'); return; }
+    var dup = myLinks.some(function (l) { return l.url === link.url; });
+    if (dup) { toast('You already have that link'); return; }
+    myLinks.unshift(link);
+    writeMyLinks();
+    els.linkInput.value = '';
+    renderLinks();
+    toast('Link created');
+  });
+
+
   if (els.pbForm) els.pbForm.addEventListener('submit', function (e) {
     e.preventDefault();
     pbOpen(els.pbInput.value);
