@@ -2824,7 +2824,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
   /* Scramjet runs pages inside a service worker scoped to proxy/, with libcurl
      as the transport over a wisp websocket. When none of it is reachable the
      card falls back to the reader it has always had. */
-  var px = { promise: null, ready: false, wisp: '' };
+  var px = { promise: null, ready: false, wisp: '', transport: '', failedAt: 0 };
 
   function pxBase() {
     return new URL('./', location.href).pathname;
@@ -2877,58 +2877,136 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     var list = [];
     var own = '';
     try { own = localStorage.getItem('mono.wisp') || ''; } catch (e) {}
+    try {
+      var q = new URLSearchParams(location.search).get('wisp');
+      if (q) own = q;
+    } catch (e) {}
     if (own) list.push(own);
-    list.push((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/wisp/');
+    /* Daydream's wisp, then a public spare. A same-origin /wisp/ is only worth
+       probing when the host actually runs one, which static hosting does not. */
+    list.push('wss://daydreamx.pro/wisp/');
     list.push('wss://wisp.mercurywork.shop/');
-    list.push('wss://wisp.terbiumon.top/');
     return list;
   }
 
+  /* Opening the socket proves nothing: a rate-limited or egress-blocked wisp
+     accepts the upgrade and then never answers. A real one replies to the INFO
+     packet, so wait for that (or give up quickly and try the next server). */
   function pxProbe(url) {
     return new Promise(function (resolve) {
-      var settled = false, ws, timer;
+      var settled = false, ws, timer, grace;
       function finish(ok) {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
+        clearTimeout(grace);
         try { if (ws) ws.close(); } catch (e) {}
         resolve(ok);
       }
-      timer = setTimeout(function () { finish(false); }, 4000);
+      timer = setTimeout(function () { finish(false); }, 2500);
       try { ws = new WebSocket(url); } catch (e) { finish(false); return; }
-      ws.onopen = function () { finish(true); };
+      try { ws.binaryType = 'arraybuffer'; } catch (e) {}
+      ws.onopen = function () {
+        try { ws.send(new Uint8Array([1, 1])); } catch (e) {}
+        grace = setTimeout(function () { finish(true); }, 1200);
+      };
+      ws.onmessage = function () { finish(true); };
       ws.onerror = function () { finish(false); };
       ws.onclose = function () { finish(false); };
     });
   }
 
+  /* A transport can be installed and still not move bytes. The page itself sits
+     outside the worker's scope, so the check has to run inside it: a hidden
+     frame loads a tiny page through the proxy and must come back with that
+     page's actual text, not an error document. */
+  function pxSmoke() {
+    var cfg = self.__scramjet$config;
+    if (!cfg || !cfg.codec) return Promise.resolve(true);
+    return new Promise(function (resolve) {
+      var frame = document.createElement('iframe');
+      var done = false, timer;
+      function finish(ok) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { frame.parentNode.removeChild(frame); } catch (e) {}
+        resolve(ok);
+      }
+      timer = setTimeout(function () { finish(false); }, 6000);
+      frame.setAttribute('aria-hidden', 'true');
+      frame.setAttribute('tabindex', '-1');
+      frame.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;border:0;opacity:0';
+      frame.onload = function () {
+        var ok = false;
+        try {
+          var doc = frame.contentDocument;
+          ok = !!(doc && doc.body && /example domain/i.test(doc.body.textContent || ''));
+        } catch (e) { ok = false; }
+        finish(ok);
+      };
+      frame.onerror = function () { finish(false); };
+      frame.src = cfg.prefix + cfg.codec.encode('https://example.com/');
+      (document.body || document.documentElement).appendChild(frame);
+    });
+  }
+
   function pxStart() {
-    if (px.promise) return px.promise;
+    if (px.promise && (px.ready || Date.now() - (px.failedAt || 0) < 30000)) return px.promise;
+    px.promise = null;
     if (!('serviceWorker' in navigator) || !self.BareMux) {
       px.promise = Promise.resolve(false);
       return px.promise;
     }
-    var base = pxBase();
+    var base = '';
+    try { base = pxBase(); } catch (e) { base = ''; }
+    if (!base) {
+      px.promise = Promise.resolve(false);
+      return px.promise;
+    }
+
+    /* Epoxy does far less work per request than the WASM curl client, so it is
+       tried first; curl stays as the fallback that is known to work. */
+    var transports = ['proxy/epoxy/index.mjs', 'proxy/libcurl/index.mjs'];
+
     px.promise = navigator.serviceWorker.register(base + 'proxy/sw.js', { scope: base + 'proxy/' })
       .then(function () { return pxSeedConfig(); })
       .then(function () { return navigator.serviceWorker.ready; })
       .then(function () {
         var conn = new BareMux.BareMuxConnection(base + 'proxy/baremux/worker.js');
         var wisps = pxWisps();
-        var i = 0;
-        function attempt() {
-          if (i >= wisps.length) return Promise.resolve(false);
-          var wisp = wisps[i++];
-          return pxProbe(wisp).then(function (alive) {
-            if (!alive) return attempt();
-            return conn.setTransport(base + 'proxy/libcurl/index.mjs', [{ wisp: wisp }])
-              .then(function () { px.ready = true; px.wisp = wisp; return true; })
-              .catch(function () { return attempt(); });
+        var probed = {};
+        var wi = 0, ti = 0;
+
+        function next() {
+          if (wi >= wisps.length) return Promise.resolve(false);
+          if (ti >= transports.length) { wi += 1; ti = 0; return next(); }
+          var wisp = wisps[wi], file = transports[ti];
+          var check = Object.prototype.hasOwnProperty.call(probed, wisp)
+            ? Promise.resolve(probed[wisp])
+            : pxProbe(wisp).then(function (ok) { probed[wisp] = ok; return ok; });
+          return check.then(function (alive) {
+            if (!alive) { ti = transports.length; return next(); }
+            return conn.setTransport(base + file, [{ wisp: wisp }])
+              .then(function () { return pxSmoke(); })
+              .then(function (ok) {
+                if (!ok) { ti += 1; return next(); }
+                px.ready = true;
+                px.wisp = wisp;
+                px.transport = file;
+                return true;
+              })
+              .catch(function () { ti += 1; return next(); });
           });
         }
-        return attempt();
+
+        return next();
       })
-      .catch(function () { return false; });
+      .catch(function () { return false; })
+      .then(function (ok) {
+        if (!ok) px.failedAt = Date.now();
+        return ok;
+      });
     return px.promise;
   }
 
@@ -2959,6 +3037,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     els.pbNote.title = built.url;
     els.pbInput.value = built.url;
     els.pbStatus.textContent = 'Reader';
+    els.pbStatus.title = 'Proxy engine unavailable here — showing the text version';
     els.pbStatus.dataset.state = 'ok';
     els.pbBack.disabled = pb.hi <= 0;
     els.pbReload.disabled = false;
@@ -2989,6 +3068,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       pb.frameLoaded = true;
       els.pbLoading.hidden = true;
       els.pbStatus.textContent = 'Live';
+      els.pbStatus.title = px.wisp + (px.transport ? ' · ' + px.transport.split('/').pop() : '');
       els.pbStatus.dataset.state = 'ok';
 
       var real = '';
@@ -3004,7 +3084,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     pb.watchdog = setTimeout(function () {
       if (token !== pb.req || !pb.viaFrame || pb.frameLoaded) return;
       pbReader(pb.url, token);
-    }, 22000);
+    }, 9000);
 
     return true;
   }
