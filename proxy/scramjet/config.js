@@ -35,7 +35,7 @@
       scramitize: false,
       serviceworkers: false,
       sourcemaps: false,
-      strictRewrites: true,
+      strictRewrites: false,
       syncxhr: false
     },
     codec: { encode: encode, decode: decode }
