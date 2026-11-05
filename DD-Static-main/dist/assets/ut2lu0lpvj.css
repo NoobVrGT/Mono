@@ -76,3 +76,7 @@ button:hover, input:hover, select:hover, textarea:hover{
   background:rgba(17,19,26,.52) !important;
   backdrop-filter:blur(16px) saturate(1.2) !important;
 }
+header [component="logo-container"],
+[component="logo-container"] {
+  display: none !important;
+}
