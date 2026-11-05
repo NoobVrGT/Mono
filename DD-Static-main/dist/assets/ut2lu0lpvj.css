@@ -80,3 +80,26 @@ header [component="logo-container"],
 [component="logo-container"] {
   display: none !important;
 }
+[component="logo-container"]{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:40px !important;
+  width:auto !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+
+[component="logo-container"] > *{
+  display:none !important;
+}
+
+[component="logo-container"]::after{
+  content:"Mono.";
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:0.12em;
+  color:#fff;
+  line-height:1;
+}
