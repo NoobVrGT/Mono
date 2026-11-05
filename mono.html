@@ -201,6 +201,42 @@ body[data-wall="plain"] #wall .b4{opacity:0}
   mix-blend-mode:overlay;
 }
 
+/* ---------- topographic field (paints inside the home card) ---------- */
+#topoField{
+  position:absolute;inset:0;z-index:-1;width:100%;height:100%;
+  pointer-events:none;opacity:.9;mix-blend-mode:screen;
+}
+body[data-wall="plain"] #topoField{opacity:.55}
+
+/* ---------- ascii wordmark ---------- */
+.ascii-logo{
+  margin:0 0 16px;padding:0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:clamp(10px,1.5vw,18px);line-height:1.08;letter-spacing:.08em;
+  white-space:pre;text-align:center;
+  color:rgba(236,238,244,.46);
+  text-shadow:0 0 22px rgba(255,255,255,.09);
+  cursor:default;user-select:none;
+  transition:color .28s ease;
+}
+.ascii-logo:hover{color:rgba(236,238,244,.88)}
+.ascii-logo .al-line{display:block}
+.ascii-logo .al-ch{display:inline-block;will-change:transform}
+.ascii-logo:hover .al-ch{
+  animation:alWave .74s cubic-bezier(.22,.61,.36,1) both;
+  animation-delay:calc(var(--i) * 9ms);
+}
+@keyframes alWave{
+  0%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+  34%{transform:translate3d(0,-4px,0) rotate(-2.5deg) scale(1.07)}
+  68%{transform:translate3d(0,2px,0) rotate(1.5deg) scale(.99)}
+  100%{transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+@media (prefers-reduced-motion:reduce){
+  .ascii-logo:hover .al-ch{animation:none}
+}
+#newTabView[data-pb="open"] .ascii-logo{display:none}
+
 /* ---------- shell ---------- */
 #app{position:relative;z-index:2;display:flex;height:100dvh}
 
@@ -1030,7 +1066,51 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 }
 
 /*]]>*/
+/* ---------- proxy gate (search bar opens Daydream) ---------- */
+#pxOpen{position:fixed;inset:0;z-index:9000;background:#090a0f}
+#pxOpen[hidden]{display:none!important}
+#pxFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#090a0f;opacity:0;transition:opacity .5s ease}
+#pxOpen.px-ready #pxFrame{opacity:1}
+#pxGate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:28px;text-align:center;transition:opacity .45s ease,visibility .45s}
+#pxOpen.px-ready #pxGate{opacity:0;visibility:hidden;pointer-events:none}
+.px-orb{position:relative;width:104px;height:104px;display:grid;place-items:center}
+.px-orb i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,255,255,.13)}
+.px-orb i:nth-child(1){animation:pxRing 2.6s ease-out infinite}
+.px-orb i:nth-child(2){animation:pxRing 2.6s ease-out infinite .55s}
+.px-orb i:nth-child(3){animation:pxRing 2.6s ease-out infinite 1.1s}
+.px-orb::before{content:"";width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,color-mix(in srgb,var(--accent) 55%,#7c8398));box-shadow:0 0 26px color-mix(in srgb,var(--accent) 34%,transparent);animation:pxPulse 1.9s ease-in-out infinite}
+.px-orb::after{content:"";position:absolute;inset:6px;border-radius:50%;border-top:1.5px solid color-mix(in srgb,var(--accent) 62%,transparent);border-right:1.5px solid transparent;animation:pxSpin 1.35s linear infinite}
+@keyframes pxRing{0%{transform:scale(.42);opacity:.85}100%{transform:scale(1);opacity:0}}
+@keyframes pxPulse{0%,100%{transform:scale(.92);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+@keyframes pxSpin{to{transform:rotate(360deg)}}
+.px-title{margin:0;font-size:15px;font-weight:600;letter-spacing:.2px;color:var(--ink)}
+.px-dots i{opacity:.25;animation:pxDot 1.2s ease-in-out infinite}
+.px-dots i:nth-child(2){animation-delay:.18s}
+.px-dots i:nth-child(3){animation-delay:.36s}
+@keyframes pxDot{0%,100%{opacity:.22}45%{opacity:1}}
+.px-quip{margin:0;min-height:1.45em;max-width:36ch;font-size:13px;line-height:1.45;color:var(--muted)}
+.px-quip.px-swap{animation:pxSwap .38s ease}
+@keyframes pxSwap{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.px-progress{width:min(260px,62vw);height:3px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
+.px-progress span{display:block;height:100%;width:12%;border-radius:inherit;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:pxSweep 1.5s ease-in-out infinite}
+@keyframes pxSweep{0%{transform:translateX(-110%)}100%{transform:translateX(880%)}}
+.px-hand{position:fixed;top:12px;right:12px;z-index:9100;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(9,10,15,.72);backdrop-filter:blur(10px);color:var(--ink);font-size:12px;cursor:pointer}
+.px-hand:hover{border-color:rgba(255,255,255,.3);background:rgba(20,23,31,.85)}
+@media (prefers-reduced-motion:reduce){.px-orb i,.px-orb::after,.px-orb::before,.px-progress span,.px-dots i{animation:none}}
+
 </style>
+  <!-- Proxy gate: the search bar launches Daydream here instead of typing -->
+  <div id="pxOpen" hidden="hidden">
+    <iframe id="pxFrame" title="Proxy" referrerpolicy="no-referrer"></iframe>
+    <div id="pxGate">
+      <div class="px-orb" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="px-title">Opening proxy<span class="px-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
+      <p id="pxQuip" class="px-quip" aria-live="polite">Warming up the tubes…</p>
+      <div class="px-progress" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
+  <button id="pxHand" class="px-hand" type="button" hidden="hidden" title="Back to Mono (Esc)">&#8249; Mono</button>
+
 <script src="./proxy/scramjet/config.js"></script>
 <script src="./proxy/baremux/index.js"></script>
 </head>
@@ -1105,6 +1185,14 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 
     <div id="viewport">
       <section id="newTabView">
+        <canvas id="topoField" aria-hidden="true"></canvas>
+        <pre id="monoAscii" class="ascii-logo" aria-label="Mono" title="Mono">
+#   #  ###  #   #  ###
+## ## #   # ##  # #   #
+# # # #   # # # # #   #
+#   # #   # #  ## #   #
+#   #  ###  #   #  ###
+        </pre>
         <p class="hero-time" id="heroTime">--:--</p>
         <p class="hero-greeting" id="heroGreeting">Good evening</p>
 
@@ -2826,8 +2914,22 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
      card falls back to the reader it has always had. */
   var px = { promise: null, ready: false, wisp: '', transport: '', failedAt: 0 };
 
+  /* The loader shows Mono by injecting it into a frame, so this document's own
+     URL is about:srcdoc and the only thing that knows where the proxy files
+     live is the <base> the loader injects. Without this the engine bailed out
+     before it ever reached the worker, and every page fell to the reader. */
   function pxBase() {
-    return new URL('./', location.href).pathname;
+    var href = location.href;
+    if (!/^https?:/i.test(href)) {
+      try { href = document.baseURI; } catch (e) {}
+    }
+    if (!href || !/^https?:/i.test(href)) {
+      try {
+        var tag = document.querySelector('base[href]');
+        if (tag && tag.href) href = tag.href;
+      } catch (e) {}
+    }
+    try { return new URL('./', href).pathname; } catch (e) { return ''; }
   }
 
   function pxUrl(url) {
@@ -2977,7 +3079,10 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 
         return next();
       })
-      .catch(function () { return false; })
+      .catch(function (err) {
+        px.error = String((err && err.message) || err || 'unknown');
+        return false;
+      })
       .then(function (ok) {
         if (!ok) px.failedAt = Date.now();
         return ok;
@@ -3012,7 +3117,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     els.pbNote.title = built.url;
     els.pbInput.value = built.url;
     els.pbStatus.textContent = 'Reader';
-    els.pbStatus.title = 'Proxy engine unavailable here — showing the text version';
+    els.pbStatus.title = 'Proxy engine unavailable here — showing the text version' + (px.error ? ' (' + px.error + ')' : '');
     els.pbStatus.dataset.state = 'ok';
     els.pbBack.disabled = pb.hi <= 0;
     els.pbReload.disabled = false;
@@ -4528,6 +4633,266 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 })();
 
 //]]>
+  /* ---------------- proxy gate ---------------- */
+
+  /* Daydream's SVG shell. jsDelivr serves it as image/svg+xml, so it is a real
+     same-origin document and its service worker can register and proxy. Point
+     SRC at your fork once the Mono stylesheet is uploaded, or pass ?proxy=URL. */
+  (function proxyGate() {
+    var SRC = 'https://cdn.jsdelivr.net/gh/NoobVrGT/Mono@main/DD-Static-main/dist/index.svg';
+    var forced = null;
+    try { var q = new URLSearchParams(location.search).get('proxy'); if (q) forced = q; } catch (e) {}
+    try { var kept = localStorage.getItem('mono.proxy.src'); if (kept) forced = kept; } catch (e) {}
+    if (forced) SRC = forced;
+
+    /* Daydream's bundle only boots when the frame shares this page's origin, so
+       prefer the copy sitting next to mono.html when it is there. ?proxy= and the
+       localStorage override still win. */
+    if (!forced && /^https?:$/.test(location.protocol)) {
+      try {
+        var here = new URL('DD-Static-main/dist/index.svg', location.href).href;
+        if (here !== SRC && typeof fetch === 'function') {
+          fetch(here, { method: 'HEAD' }).then(function (r) { if (r.ok) SRC = here; }).catch(function () {});
+        }
+      } catch (e) {}
+    }
+
+    var gate = document.getElementById('pxOpen');
+    var frame = document.getElementById('pxFrame');
+    var quip = document.getElementById('pxQuip');
+    var hand = document.getElementById('pxHand');
+    var bar = document.getElementById('pbInput');
+    if (!gate || !frame || !quip || !hand || !bar) return;
+
+    var lines = [
+      'Warming up the tubes…',
+      'Bribing the wisp with a stale cookie…',
+      'Negotiating with 24 tiny Cloudflare gremlins…',
+      'Telling the DNS server a little white lie…',
+      'Untangling the internet’s headphones…',
+      'Teaching a hamster to speak WebSocket…',
+      'Convincing the firewall that we are cousins…',
+      'Reticulating proxies…',
+      'Stretching before the big lift…',
+      'Almost there. Statistically.'
+    ];
+    var open = false, ready = false, swap = 0, i = 0;
+
+    function say() {
+      quip.textContent = lines[i % lines.length];
+      i += 1;
+      quip.classList.remove('px-swap');
+      void quip.offsetWidth;
+      quip.classList.add('px-swap');
+    }
+
+    function launch() {
+      if (open) return;
+      open = true;
+      ready = false;
+      gate.hidden = false;
+      hand.hidden = false;
+      say();
+      clearInterval(swap);
+      swap = setInterval(say, 2100);
+      if (frame.getAttribute('src')) { try { bar.blur(); } catch (e) {} return; }
+      var sameOrigin = false;
+      try { sameOrigin = new URL(SRC, location.href).origin === location.origin; } catch (e) {}
+      if (sameOrigin) {
+        frame.setAttribute('src', SRC);
+      } else {
+        /* Daydream reads window.top at boot, so a frame that cannot share this
+           page's origin is a permanently blank frame (always true from file://).
+           Take the tab over instead of showing nothing. */
+        clearInterval(swap);
+        quip.textContent = 'This file cannot host it inline - taking the tab over.';
+        window.setTimeout(function () { if (open) location.href = SRC; }, 1200);
+      }
+      try { bar.blur(); } catch (e) {}
+    }
+
+    function hide() {
+      if (!open) return;
+      open = false;
+      ready = false;
+      clearInterval(swap);
+      gate.hidden = true;
+      gate.classList.remove('px-ready');
+      hand.hidden = true;
+      frame.removeAttribute('src');
+    }
+
+    function arrived() {
+      if (ready || !open) return;
+      ready = true;
+      try { bar.blur(); } catch (e) {}
+      window.setTimeout(function () {
+        if (!open) return;
+        clearInterval(swap);
+        gate.classList.add('px-ready');
+      }, 420);
+    }
+
+    frame.addEventListener('load', arrived);
+    bar.addEventListener('pointerdown', function (e) { e.preventDefault(); launch(); });
+    bar.addEventListener('focus', function () { launch(); });
+    hand.addEventListener('click', hide);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) hide(); });
+    frame.addEventListener('error', function () { quip.textContent = 'That did not load. Try again in a second.'; });
+  })();
+
+  /* ---------------- topographic field + ascii wordmark ---------------- */
+  (function fieldAndLogo() {
+    var cv = document.getElementById('topoField');
+    var reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    var ctx = cv && cv.getContext ? cv.getContext('2d') : null;
+    if (!ctx) { if (cv) cv.style.display = 'none'; }
+    else {
+      /* ---- simplex noise (3D), inlined so mono stays a single file ---- */
+      var perm = new Uint8Array(512), permMod12 = new Uint8Array(512), base = new Uint8Array(256);
+      (function seedNoise() {
+        var i, j, t, r = 20261105;
+        for (i = 0; i < 256; i++) base[i] = i;
+        for (i = 255; i > 0; i--) {
+          r ^= r << 13; r >>>= 0; r ^= r >> 17; r ^= r << 5; r >>>= 0;
+          j = r % (i + 1);
+          t = base[i]; base[i] = base[j]; base[j] = t;
+        }
+        for (i = 0; i < 512; i++) { perm[i] = base[i & 255]; permMod12[i] = perm[i] % 12; }
+      })();
+
+      var grad3 = [1,1,0, -1,1,0, 1,-1,0, -1,-1,0, 1,0,1, -1,0,1,
+                   1,0,-1, -1,0,-1, 0,1,1, 0,-1,1, 0,1,-1, 0,-1,-1];
+      var F3 = 1 / 3, G3 = 1 / 6;
+
+      function noise3(xin, yin, zin) {
+        var s = (xin + yin + zin) * F3;
+        var i = Math.floor(xin + s), j = Math.floor(yin + s), k = Math.floor(zin + s);
+        var t = (i + j + k) * G3;
+        var x0 = xin - (i - t), y0 = yin - (j - t), z0 = zin - (k - t);
+        var i1, j1, k1, i2, j2, k2;
+        if (x0 >= y0) {
+          if (y0 >= z0) { i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0; }
+          else if (x0 >= z0) { i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1; }
+          else { i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1; }
+        } else {
+          if (y0 < z0) { i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1; }
+          else if (x0 < z0) { i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1; }
+          else { i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0; }
+        }
+        var x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+        var x2 = x0 - i2 + 2 * G3, y2 = y0 - j2 + 2 * G3, z2 = z0 - k2 + 2 * G3;
+        var x3 = x0 - 1 + 3 * G3, y3 = y0 - 1 + 3 * G3, z3 = z0 - 1 + 3 * G3;
+        var ii = i & 255, jj = j & 255, kk = k & 255;
+        var g0 = permMod12[ii + perm[jj + perm[kk]]] * 3;
+        var g1 = permMod12[ii + i1 + perm[jj + j1 + perm[kk + k1]]] * 3;
+        var g2 = permMod12[ii + i2 + perm[jj + j2 + perm[kk + k2]]] * 3;
+        var g3 = permMod12[ii + 1 + perm[jj + 1 + perm[kk + 1]]] * 3;
+        var n = 0, tt;
+        tt = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+        if (tt > 0) { tt *= tt; n += tt * tt * (grad3[g0] * x0 + grad3[g0 + 1] * y0 + grad3[g0 + 2] * z0); }
+        tt = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+        if (tt > 0) { tt *= tt; n += tt * tt * (grad3[g1] * x1 + grad3[g1 + 1] * y1 + grad3[g1 + 2] * z1); }
+        tt = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+        if (tt > 0) { tt *= tt; n += tt * tt * (grad3[g2] * x2 + grad3[g2 + 1] * y2 + grad3[g2 + 2] * z2); }
+        tt = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+        if (tt > 0) { tt *= tt; n += tt * tt * (grad3[g3] * x3 + grad3[g3 + 1] * y3 + grad3[g3 + 2] * z3); }
+        return 32 * n;
+      }
+
+      /* ---- contour field ---- */
+      var w = 0, h = 0, dpr = 1, raf = 0, z = 0, field = null, cols = 0, rows = 0, step = 16;
+      var SCALE = 430, LAYERS = 7, MORPH = 0.0035, INK = 'rgba(236,238,244,0.085)';
+
+      function measure() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = cv.clientWidth || window.innerWidth;
+        h = cv.clientHeight || window.innerHeight;
+        cv.width = Math.max(1, Math.round(w * dpr));
+        cv.height = Math.max(1, Math.round(h * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        step = (w * h) > 1200000 ? 20 : 16;
+        cols = Math.ceil(w / step) + 1;
+        rows = Math.ceil(h / step) + 1;
+        field = new Float32Array(cols * rows);
+      }
+
+      function sampleField() {
+        var xi, yi, v, idx = 0;
+        for (yi = 0; yi < rows; yi++) {
+          for (xi = 0; xi < cols; xi++) {
+            v = noise3((xi * step) / SCALE, (yi * step) / SCALE, z);
+            v += noise3((xi * step) / (SCALE * 0.33) + 41.3, (yi * step) / (SCALE * 0.33) - 17.7, z * 1.7) * 0.34;
+            field[idx++] = v;
+          }
+        }
+      }
+
+      function march(thr) {
+        var xi, yi, i00, i10, i01, i11, v00, v10, v01, v11, x, y, a, b, c, d;
+        var cnt, ax, ay, bx, by, u;
+        for (yi = 0; yi < rows - 1; yi++) {
+          for (xi = 0; xi < cols - 1; xi++) {
+            i00 = yi * cols + xi; i10 = i00 + 1; i01 = i00 + cols; i11 = i01 + 1;
+            v00 = field[i00]; v10 = field[i10]; v01 = field[i01]; v11 = field[i11];
+            a = v00 > thr; b = v10 > thr; c = v11 > thr; d = v01 > thr;
+            if (a === b && b === c && c === d) continue;
+            x = xi * step; y = yi * step;
+            cnt = 0; ax = 0; ay = 0; bx = 0; by = 0;
+            if (a !== b) { u = (thr - v00) / (v10 - v00); if (cnt === 0) { ax = x + step * u; ay = y; } else { bx = x + step * u; by = y; } cnt++; }
+            if (b !== c) { u = (thr - v10) / (v11 - v10); if (cnt === 0) { ax = x + step; ay = y + step * u; } else { bx = x + step; by = y + step * u; } cnt++; }
+            if (d !== c) { u = (thr - v01) / (v11 - v01); if (cnt === 0) { ax = x + step * u; ay = y + step; } else { bx = x + step * u; by = y + step; } cnt++; }
+            if (a !== d) { u = (thr - v00) / (v01 - v00); if (cnt === 0) { ax = x; ay = y + step * u; } else { bx = x; by = y + step * u; } cnt++; }
+            if (cnt >= 2) { ctx.moveTo(ax, ay); ctx.lineTo(bx, by); }
+          }
+        }
+      }
+
+      function frame() {
+        raf = 0;
+        ctx.clearRect(0, 0, w, h);
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = INK;
+        sampleField();
+        for (var l = 0; l < LAYERS; l++) {
+          ctx.beginPath();
+          march((l / LAYERS) * 1.5 - 0.75);
+          ctx.stroke();
+        }
+        if (!reduce) { z += MORPH; raf = window.requestAnimationFrame(frame); }
+      }
+
+      function kick() { if (!raf && !document.hidden) raf = window.requestAnimationFrame(frame); }
+
+      measure();
+      kick();
+      window.addEventListener('resize', function () { measure(); kick(); }, { passive: true });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { if (raf) window.cancelAnimationFrame(raf); raf = 0; } else kick();
+      });
+    }
+
+    var logo = document.getElementById('monoAscii');
+    if (logo) {
+      var lines = logo.textContent.replace(/^\n+/, '').replace(/\s+$/, '').split('\n');
+      logo.textContent = '';
+      for (var li = 0; li < lines.length; li++) {
+        var row = document.createElement('span');
+        row.className = 'al-line';
+        for (var ci = 0; ci < lines[li].length; ci++) {
+          var ch = document.createElement('span');
+          ch.className = 'al-ch';
+          ch.style.setProperty('--i', ci + li * 3);
+          ch.textContent = lines[li][ci] === ' ' ? '\u00a0' : lines[li][ci];
+          row.appendChild(ch);
+        }
+        logo.appendChild(row);
+      }
+    }
+  })();
+
 </script>
 </body>
 </html>
