@@ -97,3 +97,9 @@ body{background-color:#090a0f;color:#eceef4}
   color:#fff;
   line-height:1;
 }
+
+.text-3xl{
+ display: none !important;
+
+   
+}
