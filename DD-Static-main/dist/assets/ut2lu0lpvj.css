@@ -103,3 +103,9 @@ header [component="logo-container"],
   color:#fff;
   line-height:1;
 }
+
+.text-3xl{
+ display: none !important;
+
+   
+}
