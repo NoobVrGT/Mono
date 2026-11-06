@@ -1069,6 +1069,8 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 /* ---------- proxy gate (search bar opens Daydream) ---------- */
 #pxOpen{position:fixed;inset:0;z-index:9000;background:#090a0f}
 #pxOpen[hidden]{display:none!important}
+.px-alt{margin-top:2px;display:inline-block;font:12px/1.4 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:rgba(141,146,163,.85);text-decoration:underline;text-underline-offset:3px;letter-spacing:.2px;transition:color .15s ease}
+.px-alt:hover{color:#eceef4}
 #pxFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#090a0f;opacity:0;transition:opacity .5s ease}
 #pxOpen.px-ready #pxFrame{opacity:1}
 #pxGate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:28px;text-align:center;transition:opacity .45s ease,visibility .45s}
@@ -4702,11 +4704,19 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
         frame.setAttribute('src', SRC);
       } else {
         /* Daydream reads window.top at boot, so a frame that cannot share this
-           page's origin is a permanently blank frame (always true from file://).
-           Take the tab over instead of showing nothing. */
+           page's origin stays blank (always true from file://). Never navigate
+           the tab away to hide that: say why, and leave a plain same-tab link
+           for the times you do want to go there. Nothing here opens a window. */
         clearInterval(swap);
-        quip.textContent = 'This file cannot host it inline - taking the tab over.';
-        window.setTimeout(function () { if (open) location.href = SRC; }, 1200);
+        quip.textContent = 'Daydream has to sit beside mono.html to open inside this page.';
+        if (!document.getElementById('pxAlt')) {
+          var alt = document.createElement('a');
+          alt.id = 'pxAlt';
+          alt.className = 'px-alt';
+          alt.href = SRC;
+          alt.textContent = 'Open Daydream in this tab instead';
+          gate.appendChild(alt);
+        }
       }
       try { bar.blur(); } catch (e) {}
     }
@@ -4719,6 +4729,8 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       gate.hidden = true;
       gate.classList.remove('px-ready');
       hand.hidden = true;
+      var altEl = document.getElementById('pxAlt');
+      if (altEl && altEl.parentNode) altEl.parentNode.removeChild(altEl);
       frame.removeAttribute('src');
     }
 
