@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="position: fixed; top: 0; left: 0;">
+  <style>
+    body {
+      --background-color: #090a0f !important;
+      --background-image: none !important;
+      --text-color: #eceef4 !important;
+      --text-color-2: #eceef4 !important;
+      --hover-text-color: rgba(236,238,244,.7) !important;
+      --active-text-color: #ffffff !important;
+      --main-color: #eceef4 !important;
+      --faded-main-color: rgba(236,238,244,.24) !important;
+      --hover-background-color: rgba(255,255,255,.07) !important;
+      --input-background-color: #11131a !important;
+      --input-hover-background-color: rgba(17,19,26,.6) !important;
+      --tab-bg-color: #12151d !important;
+      --tab-active-bg-color: #1a1e28 !important;
+      --utility-background-color: #12151d !important;
+      --dark-translucent-bg: rgba(20,23,31,.6) !important;
+      --border-color: rgba(255,255,255,.12) !important;
+      --main: #eceef4 !important;
+      --main-35a: rgba(236,238,244,.35) !important;
+      --main-20a: rgba(236,238,244,.2) !important;
+    }
+    li:has(&gt; button[data-tooltip="Games"]),
+    li:has(&gt; button[data-tooltip="Extensions"]),
+    li:has(&gt; button[data-tooltip="Bookmarks"]),
+    li:has(&gt; button[data-tooltip="History"]),
+    li:has(&gt; button[data-tooltip="What's New"]),
+    li:has(&gt; button[data-tooltip="Discord"]),
+    li:has(&gt; button[data-tooltip="Settings"]) {
+      display: none !important;
+    }
+    li:has(&gt; a[data-tooltip="DaydreamX Home"]),
+    button[aria-label*="profile" i],
+    button[data-tooltip*="profile" i],
+    button[title*="profile" i],
+    #menu-btn {
+      display: none !important;
+    }
+    #mono-topography {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: .72;
+      mix-blend-mode: screen;
+    }
+  </style>
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <body xmlns="http://www.w3.org/1999/xhtml" class="bg-[var(--background-color)] text-[var(--text-color)]">
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>Mono. Proxy</title>
+      <link rel="icon" type="image/x-icon" href="./res/logo.png" />
+      <meta name="description" content="Your favorite Browser in a browser" />
+      <meta name="keywords" content="Daydream, Daydream Browser, Daydream Browser, Daydream Browser, Daydream Security Browser" />
+      <meta property="og:image" content="./res/logo.png" />
+      <link rel="modulepreload" crossorigin="" href="./chunks/vendor-544pikh3.js" />
+      <link rel="modulepreload" crossorigin="" href="./chunks/exv08g6z8l.js" />
+      <link rel="modulepreload" crossorigin="" href="./chunks/fctvp9xwta.js" />
+      <link rel="modulepreload" crossorigin="" href="./chunks/hh7bp28r2q.js" />
+      <link rel="stylesheet" crossorigin="" href="./assets/ut2lu0lpvj.css" />
+      <link rel="stylesheet" crossorigin="" href="./assets/gzken57aql.css" />
+      <canvas id="mono-topography" aria-hidden="true"></canvas>
+      <div id="browser-container"></div>
+    </body>
+  </foreignObject>
+  <script><![CDATA[
+(function() {
+  var ns = "http://www.w3.org/1999/xhtml";
+  var body = document.querySelector("body");
+  var head = document.createElementNS(ns, "head");
+  body.prepend(head);
+  var styles = body.querySelectorAll('link[rel="stylesheet"]');
+  var tailwind = document.createElementNS(ns, "link");
+  tailwind.rel = "stylesheet";
+  tailwind.href = "./assets/yzdr63ylff.css";
+  head.appendChild(tailwind);
+  Array.prototype.forEach.call(styles, function(link) {
+    head.appendChild(link);
+  });
+  Object.defineProperty(document, "head", { get: function() { return head; }, configurable: true });
+  Object.defineProperty(document, "body", { get: function() { return body; }, configurable: true });
+  var origCreate = document.createElement.bind(document);
+  document.createElement = function(tag, opts) {
+    return document.createElementNS(ns, tag, opts);
+  };
+})();;
+
+self.__ddxBase=function(){var n=location.pathname,a=n.indexOf("/internal/");return-1!==a?n.substring(0,a+1):new URL("./",location.href).pathname}();
+
+document.head.append(Object.assign(document.createElement("script"),{async:!0,src:"https://www.googletagmanager.com/gtag/js?id=G-BMERY7ZH6Z"}),Object.assign(document.createElement("script"),{textContent:"window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-BMERY7ZH6Z');"}));
+
+window.FONT_OBFUSCATION_CONFIG={enabled:!0,defaultFont:"plusjakartasans",excludeInputs:!1,obfuscateTitle:!1,obfuscatePlaceholders:!1},function(){var e=self.__ddxBase||"/",t=document.createElement("link");t.rel="stylesheet",t.href=e+"ob-fonts.css",document.head.appendChild(t);var a=document.createElement("script");a.src=e+"ob-fonts.js",document.head.appendChild(a)}();
+
+(function() {
+  var ns = "http://www.w3.org/1999/xhtml";
+  var d = document;
+  var b = d.querySelector("body");
+
+  function loadModules() {
+    var mods = [{"src":"./fcu2k21a7x.js","co":true}];
+    mods.forEach(function(m, i) {
+      var s = d.createElementNS(ns, "script");
+      s.setAttribute("type", "module");
+      s.setAttribute("src", m.src);
+      if (m.co) s.setAttribute("crossorigin", "");
+      if (i === mods.length - 1) {
+        s.onload = function() {
+          d.dispatchEvent(new Event("DOMContentLoaded"));
+          window.setTimeout(ensureWisp, 0);
+        };
+      }
+      b.appendChild(s);
+    });
+  }
+
+  function ensureWisp() {
+    var proxy = self.proxy;
+    if (!proxy || !proxy.initReady || typeof proxy.ping !== "function" ||
+        typeof proxy.swapWispServer !== "function") {
+      window.setTimeout(ensureWisp, 250);
+      return;
+    }
+
+    proxy.initReady.then(function() {
+      var candidates = [
+        proxy.wispUrl,
+        "wss://daydreamx.pro/wisp/",
+        "wss://wisp.mercurywork.shop/"
+      ];
+      var index = 0;
+
+      function checkNext() {
+        if (index >= candidates.length) return;
+        var url = candidates[index++];
+        if (!url) return checkNext();
+        return proxy.ping(url).then(function(result) {
+          if (!result || !result.online) return checkNext();
+          var updated = proxy.wispUrl === url
+            ? Promise.resolve()
+            : proxy.swapWispServer(url);
+          return updated.then(function() {
+            var frames = document.querySelectorAll("iframe");
+            Array.prototype.forEach.call(frames, function(frame) {
+              try {
+                var latency = frame.contentDocument &&
+                  frame.contentDocument.getElementById("latency");
+                if (!latency) return;
+                latency.textContent = result.ping + "ms";
+                latency.classList.remove("text-red-500");
+                latency.classList.remove("text-[var(--text)]/80");
+                latency.classList.add("text-green-500");
+              } catch (e) {}
+            });
+          });
+        }, checkNext);
+      }
+
+      return checkNext();
+    });
+  }
+
+  // Load non-module deps first, then modules after all finish
+  var srcs = ["./data/bundle.js","./data/config.js","./assets/config.js","./assets/all.js","./assets/topography.js"];
+  var pending = srcs.length;
+  function done() { if (--pending === 0) loadModules(); }
+  srcs.forEach(function(u) {
+    var s = d.createElementNS(ns, "script");
+    s.setAttribute("src", u);
+    s.async = false;
+    s.onload = done;
+    s.onerror = done;
+    b.appendChild(s);
+  });
+})();
+  ]]></script>
+</svg>
