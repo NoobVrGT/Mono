@@ -1140,6 +1140,8 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 .chat-message-name{font-size:11px;font-weight:650;color:#fff}
 .chat-message-time{font-size:10px;color:rgba(141,146,163,.68)}
 .chat-message-body{margin:0;font-size:12.5px;line-height:1.55;white-space:pre-wrap;color:var(--ink)}
+.chat-delete-button{margin:6px 0 0;padding:3px 7px;border:1px solid rgba(255,120,120,.2);border-radius:6px;background:transparent;color:#ffb4b4;font:inherit;font-size:10px;cursor:pointer}
+.chat-delete-button:hover{background:rgba(255,120,120,.1)}
 .chat-empty{margin:12px 0;text-align:center;color:var(--muted);font-size:12px}
 .chat-compose{display:flex;align-items:flex-end;gap:8px;padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,.07)}
 .chat-compose textarea{max-height:120px;min-height:42px;resize:none;line-height:1.4}
@@ -1188,6 +1190,12 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 .px-dots i:nth-child(3){animation-delay:.36s}
 @keyframes pxDot{0%,100%{opacity:.22}45%{opacity:1}}
 .px-quip{margin:0;min-height:1.45em;max-width:36ch;font-size:13px;line-height:1.45;color:var(--muted)}
+.px-status{margin:0;font-size:11px;color:var(--muted)}
+.px-status[data-state="error"]{color:#ffb4b4}
+.px-status[data-state="ready"]{color:#86efac}
+.px-retry{padding:7px 12px;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:rgba(255,255,255,.06);color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
+.px-retry:hover{background:rgba(255,255,255,.12)}
+.px-retry[hidden]{display:none}
 .px-quip.px-swap{animation:pxSwap .38s ease}
 @keyframes pxSwap{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .px-progress{width:min(260px,62vw);height:3px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
@@ -1198,6 +1206,28 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 .px-hand:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media (prefers-reduced-motion:reduce){.px-orb i,.px-orb::after,.px-orb::before,.px-progress span,.px-dots i{animation:none}}
 
+/* ---------- wandering Sahur mascot ---------- */
+#sahurPet{position:fixed;top:0;left:0;z-index:8000;width:140px;height:150px;pointer-events:none;opacity:0;visibility:hidden;transform:translate3d(-180px,-180px,0);will-change:transform;transition:opacity .2s ease,visibility .2s}
+#sahurPet.is-visible{opacity:1;visibility:visible}
+#sahurPet svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 12px rgba(0,0,0,.4));transition:transform .2s ease}
+#sahurPet.is-facing-left svg{transform:scaleX(-1)}
+#sahurPet .sahur-log{fill:#a96635;stroke:#e2b47b;stroke-width:2.5;stroke-linejoin:round}
+#sahurPet .sahur-end{fill:#d69a5e;stroke:#704523;stroke-width:2}
+#sahurPet .sahur-grain{fill:none;stroke:#704523;stroke-width:2.2;stroke-linecap:round;opacity:.8}
+#sahurPet .sahur-face{fill:#171922;stroke:#171922;stroke-linecap:round;stroke-linejoin:round}
+#sahurPet .sahur-limb{fill:none;stroke:#a96635;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+#sahurPet .sahur-bat{fill:#c9894f;stroke:#704523;stroke-width:2;stroke-linejoin:round}
+#sahurPet .sahur-character{transform-box:fill-box;transform-origin:center bottom;animation:sahurBob .65s ease-in-out infinite alternate}
+#sahurPet.is-bopping .sahur-character{animation:sahurBop .22s ease-in-out infinite alternate}
+#sahurPet .sahur-leg{transform-box:fill-box;transform-origin:center top}
+#sahurPet.is-walking .sahur-leg-left{animation:sahurWalk .24s ease-in-out infinite alternate}
+#sahurPet.is-walking .sahur-leg-right{animation:sahurWalk .24s ease-in-out -.24s infinite alternate}
+@keyframes sahurBob{to{transform:translateY(-3px) rotate(2deg)}}
+@keyframes sahurBop{to{transform:translateY(-4px) rotate(-5deg)}}
+@keyframes sahurWalk{to{transform:rotate(22deg) translateY(-2px)}}
+@media (hover:none),(pointer:coarse){#sahurPet{display:none!important}}
+@media (prefers-reduced-motion:reduce){#sahurPet{transition:none}#sahurPet .sahur-character,#sahurPet .sahur-leg{animation:none!important}}
+
 </style>
   <!-- Proxy gate: the search bar launches Daydream here instead of typing -->
   <div id="pxOpen" hidden="hidden">
@@ -1207,6 +1237,8 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       <p class="px-title">Opening proxy<span class="px-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
       <p id="pxQuip" class="px-quip" aria-live="polite">Warming up the tubes…</p>
       <div class="px-progress" aria-hidden="true"><span></span></div>
+      <p id="pxStatus" class="px-status" role="status" aria-live="polite">Waiting to connect…</p>
+      <button id="pxRetry" class="px-retry" type="button" hidden="hidden">Retry connection</button>
     </div>
   </div>
   <button id="pxHand" class="px-hand" type="button" hidden="hidden" title="Back to Mono (Esc)">&#8592; Back to Mono</button>
@@ -1568,6 +1600,119 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 </dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
+
+<div id="sahurPet" aria-hidden="true">
+  <svg viewBox="0 0 140 150">
+    <path class="sahur-limb" d="m46 88-19 16-9-5m76-11 13-21"/>
+    <path class="sahur-bat" d="m119 20 5-12q2-4 5-2l5 2q4 2 2 6l-5 12-4 3-10-4z"/>
+    <path class="sahur-limb" d="m108 68 10-25 8-17"/>
+    <g class="sahur-character">
+      <path class="sahur-log" d="M46 35 43 23q-1-8 7-11l7-5q6-4 12 0l8 5q7 2 7 11l-2 12q9 13 8 34l-2 28q-1 12-10 15l-6 2H51l-8-4q-9-4-9-16l-1-24q-2-22 13-35Z"/>
+      <ellipse class="sahur-end" cx="61" cy="15" rx="12" ry="7"/>
+      <path class="sahur-grain" d="M44 43q17 7 34 0M40 89q20 7 39 0m-29 34q11 4 22 0"/>
+      <path class="sahur-face" d="m48 48 10 2m9-2 10-2" fill="none" stroke="#171922" stroke-width="3"/>
+      <ellipse class="sahur-face" cx="54" cy="57" rx="3.5" ry="5"/>
+      <ellipse class="sahur-face" cx="73" cy="56" rx="3.5" ry="5"/>
+      <ellipse cx="55" cy="58" rx="1" ry="1.5" fill="#fff"/>
+      <ellipse cx="74" cy="57" rx="1" ry="1.5" fill="#fff"/>
+      <path class="sahur-face" d="M59 69q4-3 8 0l-2 8q-5 2-7-2z"/>
+      <path class="sahur-limb" d="m42 78-14 16-8 5"/>
+      <path class="sahur-limb" d="m80 80 15 3 12-14"/>
+    </g>
+    <path class="sahur-limb sahur-leg sahur-leg-left" d="m58 119-5 18"/>
+    <path class="sahur-limb sahur-leg sahur-leg-right" d="m76 119 8 18"/>
+    <path class="sahur-log" d="M41 137q8-5 16 0l3 5q0 3-4 3H40q-4-2 1-8Zm30 0q8-5 16 0l4 5q0 3-4 3H70q-4-2 1-8Z"/>
+    <rect x="22" y="3" width="87" height="15" rx="7.5" fill="#11131a" stroke="rgba(255,255,255,.2)"/>
+    <text id="sahurLabel" x="65.5" y="13.5" text-anchor="middle" fill="#eceef4" font-family="ui-sans-serif,system-ui,sans-serif" font-size="7.5" font-weight="700" letter-spacing=".3">TUNG TUNG SAHUR</text>
+  </svg>
+</div>
+
+<script>
+//<![CDATA[
+(function () {
+  'use strict';
+  var pet = document.getElementById('sahurPet');
+  var label = document.getElementById('sahurLabel');
+  if (!pet) return;
+
+  var x = 0;
+  var y = 0;
+  var targetX = 0;
+  var targetY = 0;
+  var previousTime = 0;
+  var frame = 0;
+  var pauseUntil = 0;
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (error) {}
+
+  function chooseDestination() {
+    targetX = 12 + Math.random() * Math.max(1, window.innerWidth - 164);
+    targetY = 12 + Math.random() * Math.max(1, window.innerHeight - 174);
+  }
+
+  function wander(time) {
+    frame = 0;
+    if (document.hidden) {
+      previousTime = 0;
+      return;
+    }
+
+    if (!previousTime) previousTime = time;
+    var elapsed = Math.min((time - previousTime) / 1000, 0.05);
+    previousTime = time;
+
+    if (time >= pauseUntil) {
+      var dx = targetX - x;
+      var dy = targetY - y;
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < 8) {
+        pet.classList.remove('is-walking');
+        pauseUntil = time + 900 + Math.random() * 1800;
+        chooseDestination();
+      } else {
+        pet.classList.add('is-walking');
+        var facingLeft = dx < 0;
+        if (pet.classList.contains('is-facing-left') !== facingLeft) {
+          pet.classList.toggle('is-facing-left', facingLeft);
+          if (label) {
+            if (facingLeft) label.setAttribute('transform', 'translate(131 0) scale(-1 1)');
+            else label.removeAttribute('transform');
+          }
+        }
+        var speed = reduceMotion ? 28 : 64;
+        var step = Math.min(distance, speed * elapsed);
+        x += dx / distance * step;
+        y += dy / distance * step;
+        pet.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+        pet.classList.add('is-visible');
+      }
+    }
+
+    frame = window.requestAnimationFrame(wander);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = 0;
+      previousTime = 0;
+    } else if (!frame) frame = window.requestAnimationFrame(wander);
+  });
+  window.addEventListener('resize', function () {
+    x = Math.max(8, Math.min(window.innerWidth - 148, x));
+    y = Math.max(8, Math.min(window.innerHeight - 158, y));
+    chooseDestination();
+  }, { passive: true });
+
+  x = 12 + Math.random() * Math.max(1, window.innerWidth - 164);
+  y = 12 + Math.random() * Math.max(1, window.innerHeight - 174);
+  chooseDestination();
+  pet.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  pet.classList.add('is-visible');
+  frame = window.requestAnimationFrame(wander);
+})();
+//]]>
+</script>
 
 <script>
 //<![CDATA[
@@ -5277,11 +5422,13 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
   var SUPABASE_SCRIPT = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
   var NAME_KEY = 'mono.chat.nickname.v1';
   var TABLE = 'mono_chat_messages';
+  var MODERATOR_TABLE = 'mono_chat_moderators';
   var clientPromise = null;
   var client = null;
   var channel = null;
   var user = null;
   var currentName = '';
+  var moderatorAllowed = false;
   var joining = false;
   var sending = false;
   var historyReady = false;
@@ -5388,6 +5535,79 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     });
   }
 
+  function isModeratorName() {
+    return currentName.trim().toLowerCase() === 'mono=goat';
+  }
+
+  function syncModerationControls() {
+    if (!el.messages) return;
+    el.messages.querySelectorAll('.chat-message').forEach(function (message) {
+      var existing = message.querySelector('.chat-delete-button');
+      if (moderatorAllowed && isModeratorName() && !existing) {
+        var button = document.createElement('button');
+        button.className = 'chat-delete-button';
+        button.type = 'button';
+        button.textContent = 'Delete message';
+        button.setAttribute('aria-label', 'Delete this chat message');
+        button.addEventListener('click', function () {
+          deleteMessage(message.dataset.messageId, button);
+        });
+        message.appendChild(button);
+      } else if ((!moderatorAllowed || !isModeratorName()) && existing) {
+        existing.remove();
+      }
+    });
+  }
+
+  function refreshModeratorAccess() {
+    moderatorAllowed = false;
+    syncModerationControls();
+    if (!user || !client || !isModeratorName()) return Promise.resolve();
+    return client.from(MODERATOR_TABLE)
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(function (result) {
+        if (result.error) throw result.error;
+        moderatorAllowed = Boolean(result.data);
+        syncModerationControls();
+        if (!moderatorAllowed) setConnection('Live · moderation not configured', false);
+      })
+      .catch(function (err) {
+        console.error('[Mono chat] Could not verify moderator access:', err);
+        setConnection('Live · moderator setup unavailable. Run chat-setup.sql.', true);
+      });
+  }
+
+  function filterChatContent(content) {
+    return String(content).replace(/\b(?:fuck(?:ing|ed|er|s)?|shit(?:ty|s)?|bitch(?:es)?|asshole|bastard|damn|crap|dick|piss|cunt)\b/gi, '****');
+  }
+
+  function removeMessage(id) {
+    Array.prototype.forEach.call(el.messages.querySelectorAll('.chat-message'), function (message) {
+      if (message.dataset.messageId === id) message.remove();
+    });
+    delete seen[id];
+    showEmptyRoom();
+  }
+
+  function deleteMessage(id, button) {
+    if (!id || !moderatorAllowed || !isModeratorName() || !client || !user) return;
+    if (!window.confirm('Delete this message for everyone?')) return;
+    button.disabled = true;
+    client.from(TABLE).delete().eq('id', id).select('id').maybeSingle()
+      .then(function (result) {
+        if (result.error) throw result.error;
+        if (!result.data) throw new Error('Message was not deleted; it may already be gone or access is not configured.');
+        removeMessage(id);
+      })
+      .catch(function (err) {
+        console.error('[Mono chat] Message could not be deleted:', err);
+        setConnection('Could not delete message. Check moderator setup.', true);
+        button.disabled = false;
+      });
+  }
+
   function addMessage(row) {
     if (!row || !row.id || seen[row.id]) return;
     seen[row.id] = true;
@@ -5413,13 +5633,14 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     var body = document.createElement('p');
     body.className = 'chat-message-body';
-    body.textContent = String(row.content || '').slice(0, 1000);
+    body.textContent = filterChatContent(String(row.content || '').slice(0, 1000));
     head.appendChild(name);
     head.appendChild(time);
     bubble.appendChild(head);
     bubble.appendChild(body);
     message.appendChild(bubble);
     el.messages.appendChild(message);
+    syncModerationControls();
 
     while (el.messages.children.length > 100) {
       var first = el.messages.firstElementChild;
@@ -5457,6 +5678,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       currentName = name;
       localStorage.setItem(NAME_KEY, name);
       trackPresence();
+      refreshModeratorAccess();
       el.joinPanel.hidden = true;
       el.room.hidden = false;
       setConnection('Live · ' + name, false);
@@ -5500,6 +5722,13 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
             if (historyReady) addMessage(payload.new);
             else pendingMessages.push(payload.new);
           })
+          .on('postgres_changes', {
+            event: 'DELETE',
+            schema: 'public',
+            table: TABLE
+          }, function (payload) {
+            if (payload.old && payload.old.id) removeMessage(String(payload.old.id));
+          })
           .subscribe(function (status, err) {
             if (status === 'SUBSCRIBED') {
               setConnection('Live · ' + name, false);
@@ -5523,6 +5752,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
             pendingMessages.forEach(addMessage);
             pendingMessages = [];
             showEmptyRoom();
+            refreshModeratorAccess();
           });
       });
     }).catch(function (err) {
@@ -5573,7 +5803,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     client.from(TABLE).insert({
       user_id: user.id,
       display_name: localStorage.getItem(NAME_KEY) || 'Guest',
-      content: content
+      content: filterChatContent(content)
     }).then(function (result) {
       if (result.error) throw result.error;
       el.input.value = '';
@@ -5641,8 +5871,10 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     var frame = document.getElementById('pxFrame');
     var quip = document.getElementById('pxQuip');
     var hand = document.getElementById('pxHand');
+    var status = document.getElementById('pxStatus');
+    var retryButton = document.getElementById('pxRetry');
     var bar = document.getElementById('pbInput');
-    if (!gate || !frame || !quip || !hand || !bar) return;
+    if (!gate || !frame || !quip || !hand || !status || !retryButton || !bar) return;
 
     var lines = [
       'Contacting The Big SAHUR',
@@ -5656,7 +5888,86 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       'Stretching before the big lift…',
       'Almost there. Statistically.'
     ];
-    var open = false, ready = false, swap = 0, i = 0, launchedAt = 0;
+    var open = false, ready = false, frameLoaded = false, swap = 0, i = 0, launchedAt = 0;
+    var proxyCheckState = 'idle', probeRequest = 0, probeTimer = 0, loadTimer = 0;
+
+    function setProxyStatus(text, state) {
+      status.textContent = text;
+      status.dataset.state = state || 'info';
+    }
+
+    function probeProxy() {
+      var attempt = ++probeRequest;
+      var startedAt = window.performance && performance.now ? performance.now() : Date.now();
+      proxyCheckState = 'checking';
+      setProxyStatus('Checking proxy connection…', 'info');
+      retryButton.hidden = true;
+      clearTimeout(probeTimer);
+      probeTimer = window.setTimeout(function () {
+        if (attempt !== probeRequest || !open) return;
+        probeRequest += 1;
+        proxyCheckState = 'error';
+        setProxyStatus('Proxy check timed out.', 'error');
+        retryButton.hidden = false;
+      }, 10000);
+      if (typeof fetch !== 'function') {
+        clearTimeout(probeTimer);
+        proxyCheckState = 'error';
+        setProxyStatus('This browser cannot check the proxy connection.', 'error');
+        retryButton.hidden = false;
+        return;
+      }
+      fetch(SRC, { method: 'HEAD', cache: 'no-store' }).then(function (response) {
+        if (attempt !== probeRequest || !open) return;
+        clearTimeout(probeTimer);
+        if (!response.ok) throw new Error('Proxy asset returned HTTP ' + response.status);
+        proxyCheckState = 'ready';
+        var endedAt = window.performance && performance.now ? performance.now() : Date.now();
+        setProxyStatus('Proxy reachable · ' + Math.round(endedAt - startedAt) + ' ms', 'ready');
+        if (frameLoaded) arrived();
+      }).catch(function (err) {
+        if (attempt !== probeRequest || !open) return;
+        clearTimeout(probeTimer);
+        proxyCheckState = 'error';
+        setProxyStatus(err && err.message ? err.message : 'Could not reach the proxy.', 'error');
+        retryButton.hidden = false;
+      });
+    }
+
+    function loadProxy() {
+      sourceReady.then(function () {
+        if (!open) return;
+        var sameOrigin = false;
+        try { sameOrigin = new URL(SRC, location.href).origin === location.origin; } catch (e) {}
+        if (!sameOrigin) {
+          setProxyStatus('The proxy must be served from the same origin as Mono.', 'error');
+          retryButton.hidden = true;
+          quip.textContent = 'Daydream has to sit beside mono.html to open inside this page.';
+          if (!document.getElementById('pxAlt')) {
+            var alt = document.createElement('a');
+            alt.id = 'pxAlt';
+            alt.className = 'px-alt';
+            alt.href = SRC;
+            alt.textContent = 'Open Daydream in this tab instead';
+            gate.appendChild(alt);
+          }
+          return;
+        }
+        frameLoaded = false;
+        ready = false;
+        gate.classList.remove('px-ready');
+        retryButton.hidden = true;
+        setProxyStatus('Connecting to proxy…', 'info');
+        if (frame.getAttribute('src') !== SRC) frame.setAttribute('src', SRC);
+        probeProxy();
+        clearTimeout(loadTimer);
+        loadTimer = window.setTimeout(function () {
+          if (!open || frameLoaded) return;
+          setProxyStatus('Proxy did not finish loading.', 'error');
+          retryButton.hidden = false;
+        }, 15000);
+      });
+    }
 
     function say() {
       quip.textContent = lines[i % lines.length];
@@ -5670,36 +5981,15 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       if (open) return;
       open = true;
       ready = false;
+      frameLoaded = false;
+      proxyCheckState = 'idle';
       launchedAt = Date.now();
       gate.hidden = false;
       hand.hidden = false;
       say();
       clearInterval(swap);
       swap = setInterval(say, 2100);
-      if (frame.getAttribute('src')) { try { bar.blur(); } catch (e) {} return; }
-      sourceReady.then(function () {
-        if (!open || frame.getAttribute('src')) return;
-        var sameOrigin = false;
-        try { sameOrigin = new URL(SRC, location.href).origin === location.origin; } catch (e) {}
-        if (sameOrigin) {
-          frame.setAttribute('src', SRC);
-        } else {
-          /* Daydream reads window.top at boot, so a frame that cannot share this
-             page's origin stays blank (always true from file://). Never navigate
-             the tab away to hide that: say why, and leave a plain same-tab link
-             for the times you do want to go there. Nothing here opens a window. */
-          clearInterval(swap);
-          quip.textContent = 'Daydream has to sit beside mono.html to open inside this page.';
-          if (!document.getElementById('pxAlt')) {
-            var alt = document.createElement('a');
-            alt.id = 'pxAlt';
-            alt.className = 'px-alt';
-            alt.href = SRC;
-            alt.textContent = 'Open Daydream in this tab instead';
-            gate.appendChild(alt);
-          }
-        }
-      });
+      loadProxy();
       try { bar.blur(); } catch (e) {}
     }
 
@@ -5707,6 +5997,10 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       if (!open) return;
       open = false;
       ready = false;
+      frameLoaded = false;
+      probeRequest += 1;
+      clearTimeout(probeTimer);
+      clearTimeout(loadTimer);
       clearInterval(swap);
       gate.hidden = true;
       gate.classList.remove('px-ready');
@@ -5717,7 +6011,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     }
 
     function arrived() {
-      if (ready || !open) return;
+      if (ready || !open || proxyCheckState !== 'ready') return;
       ready = true;
       try { bar.blur(); } catch (e) {}
       window.setTimeout(function () {
@@ -5727,12 +6021,31 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       }, Math.max(0, 6000 - (Date.now() - launchedAt)));
     }
 
-    frame.addEventListener('load', arrived);
+    frame.addEventListener('load', function () {
+      if (!open || !frame.getAttribute('src')) return;
+      frameLoaded = true;
+      clearTimeout(loadTimer);
+      if (proxyCheckState === 'ready') arrived();
+    });
     bar.addEventListener('pointerdown', function (e) { e.preventDefault(); launch(); });
     bar.addEventListener('focus', launch);
+    retryButton.addEventListener('click', function () {
+      if (!open) return;
+      ready = false;
+      frameLoaded = false;
+      gate.classList.remove('px-ready');
+      clearTimeout(loadTimer);
+      if (frame.getAttribute('src')) frame.setAttribute('src', SRC);
+      loadProxy();
+    });
     hand.addEventListener('click', hide);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) hide(); });
-    frame.addEventListener('error', function () { quip.textContent = 'That did not load. Try again in a second.'; });
+    frame.addEventListener('error', function () {
+      if (!open) return;
+      quip.textContent = 'That did not load.';
+      setProxyStatus('Proxy failed to load. Check the URL and retry.', 'error');
+      retryButton.hidden = false;
+    });
   })();
 
   /* ---------------- topographic field + ascii wordmark ---------------- */
