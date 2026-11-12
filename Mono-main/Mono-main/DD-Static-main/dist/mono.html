@@ -486,6 +486,19 @@ body[data-wall="plain"] #topoField{opacity:.55}
   pointer-events:none;
   min-height:1.4em;
 }
+#announcementBanner{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9200;
+  width:min(980px,calc(100% - 32px));display:flex;align-items:flex-start;gap:18px;
+  padding:22px 24px;border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);
+  border-radius:16px;background:color-mix(in srgb,var(--accent) 16%,rgba(12,14,20,.96));
+  box-shadow:0 18px 48px -24px rgba(0,0,0,.85);text-align:left;backdrop-filter:blur(18px);
+}
+#announcementBanner[hidden]{display:none}
+#announcementBanner strong{flex:0 0 auto;padding-top:3px;font-size:13px;font-weight:750;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent)}
+#announcementText{flex:1 1 auto;min-width:0;margin:0;font-size:18px;font-weight:550;line-height:1.55;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+#announcementDismiss{flex:0 0 auto;margin:-7px -9px 0 0;padding:5px 9px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:24px;line-height:1;cursor:pointer}
+#announcementDismiss:hover{color:var(--ink)}
+@media (max-width:640px){#announcementBanner{top:10px;width:calc(100% - 20px);gap:10px;padding:15px 14px}#announcementBanner strong{font-size:10px;letter-spacing:.7px}#announcementText{font-size:15px}#announcementDismiss{font-size:20px}}
 .typing-caret{
   display:inline-block;
   width:2px;height:1em;
@@ -845,7 +858,10 @@ dialog#sheet::backdrop{background:rgba(3,5,10,.62);backdrop-filter:blur(6px)}
 .game-search{width:160px;max-width:42vw;padding:7px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:var(--ink);font:inherit;font-size:12px;outline:none}
 .game-search::placeholder{color:rgba(141,146,163,.7)}
 .game-search:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
-@media (max-width:640px){.game-search{width:120px}.game-shell{margin:0 12px 12px}.game-choices{grid-template-columns:minmax(0,320px)}.game-choice{min-height:145px}}
+.game-filter{width:150px;max-width:38vw;padding:7px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:var(--panel);color:var(--ink);font:inherit;font-size:12px}
+.game-filter:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.game-load-more{grid-column:1/-1;justify-self:center;margin:8px 0}
+@media (max-width:640px){.game-search{width:120px}.game-filter{width:125px}.game-shell{margin:0 12px 12px}.game-choices{grid-template-columns:minmax(0,320px)}.game-choice{min-height:145px}.admin-body{padding:0 12px 32px}.admin-card{padding:16px}}
 
 /* ---------- movies (catalogue + player) ---------- */
 .movie-shell{position:relative;flex:1 1 auto;min-height:0;margin:0 20px 20px;border-radius:14px;overflow:hidden;background:rgba(13,14,20,.45);border:1px solid rgba(255,255,255,.07)}
@@ -1019,6 +1035,21 @@ body[data-mode="ai"] #toast{bottom:92px}
 }
 .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
 .links-empty{grid-column:1/-1;margin:2px 0 0}
+.admin-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 24px 48px}
+.admin-card{width:min(100%,640px);padding:20px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.035)}
+.admin-card h3{margin:0 0 8px;font-size:15px;font-weight:600}
+.admin-card p{margin:0 0 16px;font-size:12px;line-height:1.55;color:var(--muted)}
+.admin-form{display:flex;flex-direction:column;gap:10px}
+.admin-form label{font-size:11px;color:var(--muted)}
+.admin-input,.admin-message{width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:rgba(255,255,255,.04);color:var(--ink);font:inherit;font-size:13px}
+.admin-input:focus,.admin-message:focus{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:1px}
+.admin-message{min-height:130px;resize:vertical;line-height:1.5}
+.admin-row,.admin-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-row .admin-input{flex:1 1 220px}
+.admin-status{min-height:1.4em;margin:10px 0 0!important;font-size:11px!important}
+.admin-status[data-state="error"]{color:#fca5a5}
+.admin-status[data-state="ok"]{color:#86efac}
+.admin-logout{margin-left:auto}
 .link-card{
   display:flex;align-items:center;min-width:0;
   border:1px solid rgba(255,255,255,.075);
@@ -1211,12 +1242,14 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 #sahurPet.is-visible{opacity:1;visibility:visible}
 #sahurPet svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 7px 12px rgba(0,0,0,.4));transition:transform .2s ease}
 #sahurPet.is-facing-left svg{transform:scaleX(-1)}
-#sahurPet .sahur-log{fill:#a96635;stroke:#e2b47b;stroke-width:2.5;stroke-linejoin:round}
-#sahurPet .sahur-end{fill:#d69a5e;stroke:#704523;stroke-width:2}
-#sahurPet .sahur-grain{fill:none;stroke:#704523;stroke-width:2.2;stroke-linecap:round;opacity:.8}
-#sahurPet .sahur-face{fill:#171922;stroke:#171922;stroke-linecap:round;stroke-linejoin:round}
-#sahurPet .sahur-limb{fill:none;stroke:#a96635;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
-#sahurPet .sahur-bat{fill:#c9894f;stroke:#704523;stroke-width:2;stroke-linejoin:round}
+#sahurPet .sahur-log,#sahurAttackLayer .sahur-log{fill:#a96635;stroke:#e2b47b;stroke-width:2.5;stroke-linejoin:round}
+#sahurPet .sahur-end,#sahurAttackLayer .sahur-end{fill:#d69a5e;stroke:#704523;stroke-width:2}
+#sahurPet .sahur-grain,#sahurAttackLayer .sahur-grain{fill:none;stroke:#704523;stroke-width:2.2;stroke-linecap:round;opacity:.8}
+#sahurPet .sahur-face,#sahurAttackLayer .sahur-face{fill:#171922;stroke:#171922;stroke-linecap:round;stroke-linejoin:round}
+#sahurPet .sahur-limb,#sahurAttackLayer .sahur-limb{fill:none;stroke:#a96635;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+#sahurPet .sahur-bat,#sahurAttackLayer .sahur-bat{fill:#c9894f;stroke:#704523;stroke-width:2;stroke-linejoin:round}
+#sahurPet .sahur-bonker,#sahurAttackLayer .sahur-bonker{transform-box:view-box;transform-origin:108px 68px}
+#sahurPet.is-bonking .sahur-bonker{animation:sahurBonk .62s cubic-bezier(.3,.7,.25,1)}
 #sahurPet .sahur-character{transform-box:fill-box;transform-origin:center bottom;animation:sahurBob .65s ease-in-out infinite alternate}
 #sahurPet.is-bopping .sahur-character{animation:sahurBop .22s ease-in-out infinite alternate}
 #sahurPet .sahur-leg{transform-box:fill-box;transform-origin:center top}
@@ -1225,8 +1258,23 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 @keyframes sahurBob{to{transform:translateY(-3px) rotate(2deg)}}
 @keyframes sahurBop{to{transform:translateY(-4px) rotate(-5deg)}}
 @keyframes sahurWalk{to{transform:rotate(22deg) translateY(-2px)}}
+@keyframes sahurBonk{0%,100%{transform:rotate(0)}32%{transform:rotate(-48deg)}62%{transform:rotate(17deg)}82%{transform:rotate(-8deg)}}
 @media (hover:none),(pointer:coarse){#sahurPet{display:none!important}}
-@media (prefers-reduced-motion:reduce){#sahurPet{transition:none}#sahurPet .sahur-character,#sahurPet .sahur-leg{animation:none!important}}
+@media (prefers-reduced-motion:reduce){#sahurPet{transition:none}#sahurPet .sahur-character,#sahurPet .sahur-leg,#sahurPet.is-bonking .sahur-bonker{animation:none!important}}
+#sahurAttackLayer{position:fixed;inset:0;z-index:8001;overflow:hidden;pointer-events:none}
+#sahurAttackLayer .sahur-invader{position:absolute;top:0;left:0;width:58px;height:62px;will-change:transform}
+#sahurAttackLayer .sahur-invader svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 5px 8px rgba(0,0,0,.42))}
+#sahurAttackLayer .sahur-invader.is-facing-left svg{transform:scaleX(-1)}
+#sahurAttackLayer .sahur-character{transform-box:fill-box;transform-origin:center bottom;animation:sahurBob .65s ease-in-out infinite alternate}
+#sahurAttackLayer .sahur-leg{transform-box:fill-box;transform-origin:center top}
+#sahurAttackLayer .sahur-invader.is-walking .sahur-leg-left{animation:sahurWalk .24s ease-in-out infinite alternate}
+#sahurAttackLayer .sahur-invader.is-walking .sahur-leg-right{animation:sahurWalk .24s ease-in-out -.24s infinite alternate}
+@media (prefers-reduced-motion:reduce){#sahurAttackLayer .sahur-character,#sahurAttackLayer .sahur-leg{animation:none!important}}
+#sahurAttackAnnouncement{position:fixed;top:24px;left:50%;z-index:8500;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);padding:16px 24px;border:1px solid color-mix(in srgb,var(--accent) 60%,transparent);border-radius:14px;background:color-mix(in srgb,var(--accent) 28%,rgba(12,14,20,.96));box-shadow:0 16px 44px rgba(0,0,0,.5);color:var(--ink);font-size:clamp(20px,4vw,32px);font-weight:850;letter-spacing:1.5px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.55);pointer-events:none;animation:sahurAttackAnnouncementIn .3s ease-out}
+#sahurAttackAnnouncement[hidden]{display:none}
+@keyframes sahurAttackAnnouncementIn{from{opacity:0;transform:translate(-50%,-10px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@media (max-width:640px){#sahurAttackAnnouncement{top:14px;padding:13px 16px;letter-spacing:1px}}
+@media (prefers-reduced-motion:reduce){#sahurAttackAnnouncement{animation:none}}
 
 </style>
   <!-- Proxy gate: the search bar launches Daydream here instead of typing -->
@@ -1305,6 +1353,9 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       </button>
       <button id="navMovies" class="nav-item" type="button" data-mode="movies">
         <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M8 5v14M16 5v14M3 9.5h5M3 14.5h5M16 9.5h5M16 14.5h5"/></svg></span><span class="nav-label">Movies</span>
+      </button>
+      <button id="navAdmin" class="nav-item" type="button" data-mode="admin">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.2c0 4.2-2.7 7.6-7 9.3-4.3-1.7-7-5.1-7-9.3V6l7-2.5Z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="nav-label">Admin</span>
       </button>
     </nav>
 
@@ -1473,6 +1524,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
             <p id="gamesSub" class="view-sub"></p>
           </div>
           <div class="head-actions">
+            <select id="gameSourceFilter" class="game-filter" aria-label="Filter games by source" hidden="hidden"></select>
             <input id="gameSearch" class="game-search" type="search" placeholder="Search games" autocomplete="off" spellcheck="false" hidden="hidden" />
             <button id="gameBack" class="ghost-btn" type="button" hidden="hidden">Back</button>
           </div>
@@ -1561,11 +1613,56 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
         </div>
       </section>
 
+      <section id="adminView" class="view" hidden="hidden">
+        <header class="view-head">
+          <div>
+            <h2>Admin</h2>
+            <p class="view-sub">Publish a message for everyone using Mono.</p>
+          </div>
+        </header>
+        <div class="admin-body">
+          <section class="admin-card">
+            <div id="adminLocked">
+              <h3>Admin sign-in</h3>
+              <p>This shared password is a convenience lock, not secure authentication. Enter it to manage the public announcement.</p>
+              <form id="adminUnlockForm" class="admin-form" autocomplete="off">
+                <label for="adminPassword">Shared password</label>
+                <div class="admin-row">
+                  <input id="adminPassword" class="admin-input" type="password" autocomplete="current-password" required />
+                  <button id="adminUnlock" class="primary-btn" type="submit">Unlock</button>
+                </div>
+              </form>
+            </div>
+            <div id="adminEditor" hidden="hidden">
+              <h3>Global announcement</h3>
+              <p>Announcements are public and appear across Mono. Keep the message under 500 characters.</p>
+              <form id="announcementForm" class="admin-form" autocomplete="off">
+                <label for="announcementMessage">Message</label>
+                <textarea id="announcementMessage" class="admin-message" maxlength="500" required placeholder="Write an announcement for Mono users…"></textarea>
+                <div class="admin-actions">
+                  <button id="announcementPublish" class="primary-btn" type="submit">Publish</button>
+                  <button id="announcementClear" class="ghost-btn" type="button">Clear announcement</button>
+                  <button id="sahurAttack" class="ghost-btn" type="button">Sahur attack · 100</button>
+                  <button id="adminLogout" class="ghost-btn admin-logout" type="button">Lock</button>
+                </div>
+              </form>
+            </div>
+            <p id="adminStatus" class="admin-status" role="status" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
 
-<dialog id="sheet" aria-label="Customize">
+  <div id="announcementBanner" role="status" aria-live="polite" hidden="hidden">
+    <strong>Announcement</strong>
+    <p id="announcementText"></p>
+    <button id="announcementDismiss" type="button" aria-label="Dismiss announcement">&times;</button>
+  </div>
+
+  <dialog id="sheet" aria-label="Customize">
   <form method="dialog" class="sheet-card">
     <header class="sheet-head">
       <h2>Customize</h2>
@@ -1604,8 +1701,10 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 <div id="sahurPet" aria-hidden="true">
   <svg viewBox="0 0 140 150">
     <path class="sahur-limb" d="m46 88-19 16-9-5m76-11 13-21"/>
-    <path class="sahur-bat" d="m119 20 5-12q2-4 5-2l5 2q4 2 2 6l-5 12-4 3-10-4z"/>
-    <path class="sahur-limb" d="m108 68 10-25 8-17"/>
+    <g class="sahur-bonker">
+      <path class="sahur-bat" d="m119 20 5-12q2-4 5-2l5 2q4 2 2 6l-5 12-4 3-10-4z"/>
+      <path class="sahur-limb" d="m108 68 10-25 8-17"/>
+    </g>
     <g class="sahur-character">
       <path class="sahur-log" d="M46 35 43 23q-1-8 7-11l7-5q6-4 12 0l8 5q7 2 7 11l-2 12q9 13 8 34l-2 28q-1 12-10 15l-6 2H51l-8-4q-9-4-9-16l-1-24q-2-22 13-35Z"/>
       <ellipse class="sahur-end" cx="61" cy="15" rx="12" ry="7"/>
@@ -1626,6 +1725,8 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     <text id="sahurLabel" x="65.5" y="13.5" text-anchor="middle" fill="#eceef4" font-family="ui-sans-serif,system-ui,sans-serif" font-size="7.5" font-weight="700" letter-spacing=".3">TUNG TUNG SAHUR</text>
   </svg>
 </div>
+<div id="sahurAttackLayer" aria-hidden="true"></div>
+<div id="sahurAttackAnnouncement" role="status" aria-live="polite" hidden="hidden">SAHUR ATTACK!!!!!</div>
 
 <script>
 //<![CDATA[
@@ -1639,15 +1740,30 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
   var y = 0;
   var targetX = 0;
   var targetY = 0;
+  var cursorX = -1;
+  var cursorY = -1;
+  var cursorSeenAt = 0;
   var previousTime = 0;
   var frame = 0;
   var pauseUntil = 0;
+  var followUntil = 0;
+  var bonkTimer = 0;
+  var nextCursorFollowCheck = 0;
   var reduceMotion = false;
   try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (error) {}
 
   function chooseDestination() {
     targetX = 12 + Math.random() * Math.max(1, window.innerWidth - 164);
     targetY = 12 + Math.random() * Math.max(1, window.innerHeight - 174);
+  }
+
+  function bonkBat() {
+    if (reduceMotion || pet.classList.contains('is-bonking')) return;
+    pet.classList.add('is-bonking');
+    window.clearTimeout(bonkTimer);
+    bonkTimer = window.setTimeout(function () {
+      pet.classList.remove('is-bonking');
+    }, 700);
   }
 
   function wander(time) {
@@ -1661,14 +1777,34 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     var elapsed = Math.min((time - previousTime) / 1000, 0.05);
     previousTime = time;
 
+    if (time < followUntil && time - cursorSeenAt < 1600) {
+      targetX = Math.max(8, Math.min(window.innerWidth - 148, cursorX + 28));
+      targetY = Math.max(8, Math.min(window.innerHeight - 158, cursorY + 24));
+    } else if (pet.classList.contains('is-following')) {
+      followUntil = 0;
+      pet.classList.remove('is-following');
+      pauseUntil = time + 700 + Math.random() * 900;
+      chooseDestination();
+    }
+
     if (time >= pauseUntil) {
       var dx = targetX - x;
       var dy = targetY - y;
       var distance = Math.sqrt(dx * dx + dy * dy);
       if (distance < 8) {
         pet.classList.remove('is-walking');
-        pauseUntil = time + 900 + Math.random() * 1800;
-        chooseDestination();
+        if (time < followUntil) {
+          pauseUntil = 0;
+        } else {
+          if (Math.random() < 0.35 && time - cursorSeenAt < 10000) {
+            followUntil = time + 1800 + Math.random() * 2200;
+            pet.classList.add('is-following');
+          } else {
+            pauseUntil = time + 900 + Math.random() * 1800;
+            if (Math.random() < 0.3) bonkBat();
+            chooseDestination();
+          }
+        }
       } else {
         pet.classList.add('is-walking');
         var facingLeft = dx < 0;
@@ -1690,6 +1826,21 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 
     frame = window.requestAnimationFrame(wander);
   }
+
+  window.addEventListener('pointermove', function (event) {
+    if (event.pointerType === 'touch') return;
+    cursorX = event.clientX;
+    cursorY = event.clientY;
+    cursorSeenAt = performance.now();
+    if (cursorSeenAt >= nextCursorFollowCheck && !pet.classList.contains('is-following')) {
+      nextCursorFollowCheck = cursorSeenAt + 6500;
+      if (Math.random() < 0.28) {
+        followUntil = cursorSeenAt + 1800 + Math.random() * 2000;
+        pauseUntil = 0;
+        pet.classList.add('is-following');
+      }
+    }
+  }, { passive: true });
 
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
@@ -1742,7 +1893,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     { id: 'abyss', label: '● Void' },
     { id: 'plain', label: '◻ Flat' }
   ];
-  var MODE_TITLES = { home: 'Home', browser: 'Home', ai: 'AI', chat: 'Chat', links: 'Links', games: 'Games', movies: 'Movies' };
+  var MODE_TITLES = { home: 'Home', browser: 'Home', ai: 'AI', chat: 'Chat', links: 'Links', games: 'Games', movies: 'Movies', admin: 'Admin' };
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var DESKTOP = /[?&]desktop=1/.test(window.location.search);
   var $ = function (sel) { return document.querySelector(sel); };
@@ -1796,6 +1947,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     linksView: $('#linksView'),
     gamesView: $('#gamesView'),
     moviesView: $('#moviesView'),
+    adminView: $('#adminView'),
     linksBody: $('#linksBody'),
     linkForm: $('#linkForm'),
     linkInput: $('#linkInput'),
@@ -1809,6 +1961,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     gamePopularBtn: $('#gamePopularBtn'),
     gameCloudBtn: $('#gameCloudBtn'),
     gameSearch: $('#gameSearch'),
+    gameSourceFilter: $('#gameSourceFilter'),
     gameBack: $('#gameBack'),
     gameLoad: $('#gameLoad'),
     gameStatus: $('#gameStatus'),
@@ -3683,6 +3836,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     els.linksView.hidden = mode !== 'links';
     els.gamesView.hidden = mode !== 'games';
     els.moviesView.hidden = mode !== 'movies';
+    els.adminView.hidden = mode !== 'admin';
 
     navItems.forEach(function (item) {
       item.setAttribute('aria-current', item.dataset.mode === mode ? 'page' : 'false');
@@ -3736,7 +3890,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
   }
 
   function setMode(next) {
-    var supported = ['home', 'ai', 'chat', 'links', 'games', 'movies', 'browser'];
+    var supported = ['home', 'ai', 'chat', 'links', 'games', 'movies', 'admin', 'browser'];
     if (supported.indexOf(next) < 0) next = 'home';
 
     if (next === 'home') {
@@ -4056,11 +4210,16 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     'https://raw.githubusercontent.com/gn-math/assets/main/zones.json',
     'https://cdn.jsdelivr.net/npm/gn-math.github.io-main@1.0.5/zones.json'
   ];
+  var STORM_GAMES_CATALOG = 'assets/storm-games.json';
   var POPULAR_GAMES_URL = 'https://cdn.jsdelivr.net/gh/NoobVrGT/Gn-Geometry@main/good-math.html';
   var POPULAR_GAMES_BASE = 'https://cdn.jsdelivr.net/gh/NoobVrGT/Gn-Geometry@main/';
   var GAMES_CACHE_KEY = 'mono.games.catalog.v3';
   var GAMES_CACHE_MS = 6 * 60 * 60 * 1000;
+  var GAME_PAGE_SIZE = 200;
   var gameCatalog = null;
+  var filteredGameCatalog = [];
+  var renderedGameCount = 0;
+  var gameCatalogWarning = '';
   var gameFrame = null;
   var gameRetryFn = null;
   var gameSource = 'home';
@@ -4075,14 +4234,23 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     function (id) { return 'https://cdn.statically.io/gh/gn-math/covers/main/' + id + '.png'; }
   ];
 
-  function gameCover(img, id) {
+  function gameCover(img, game) {
+    if (game.image && /^https?:\/\//i.test(game.image)) {
+      img.addEventListener('error', function () { img.remove(); });
+      img.src = game.image;
+      return;
+    }
+    if (game.id === undefined || game.id === null || game.id === '') {
+      img.remove();
+      return;
+    }
     var step = 0;
     img.addEventListener('error', function () {
       step += 1;
       if (step >= GAME_COVER_SOURCES.length) { img.remove(); return; }
-      img.src = GAME_COVER_SOURCES[step](id);
+      img.src = GAME_COVER_SOURCES[step](game.id);
     });
-    img.src = GAME_COVER_SOURCES[0](id);
+    img.src = GAME_COVER_SOURCES[0](game.id);
   }
 
   function readGameCache() {
@@ -4152,7 +4320,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     });
   }
 
-  function loadGameCatalog() {
+  function loadMonoGameCatalog() {
     var cached = readGameCache();
     if (cached) return Promise.resolve(cached);
     var tries = [function () { return fetchCatalog(GAMES_CATALOGS[0]); }];
@@ -4166,11 +4334,67 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     });
   }
 
+  function loadStormGameCatalog() {
+    var url = new URL(STORM_GAMES_CATALOG, window.location.href).href;
+    return fetchWithTimeout(url, 30000).then(function (res) {
+      if (!res.ok) throw new Error('source catalog HTTP ' + res.status);
+      return res.json();
+    }).then(function (list) {
+      if (!Array.isArray(list) || list.length < 20000) throw new Error('bad source catalog');
+      return list.filter(function (g) {
+        return g && typeof g.name === 'string' && typeof g.source === 'string' &&
+          typeof g.url === 'string' && /^https:\/\//i.test(g.url);
+      });
+    });
+  }
+
+  function loadGameCatalog() {
+    function result(promise) {
+      return promise.then(function (list) {
+        return { list: list, error: null };
+      }, function (error) {
+        return { list: [], error: error };
+      });
+    }
+    return Promise.all([result(loadStormGameCatalog()), result(loadMonoGameCatalog())]).then(function (results) {
+      var catalogs = results.map(function (item) { return item.list; });
+      var errors = results.filter(function (item) { return item.error; }).map(function (item) { return shortErr(item.error); });
+      if (!catalogs[0].length && !catalogs[1].length) {
+        throw new Error(errors.join('; ') || 'no game catalogs loaded');
+      }
+      gameCatalogWarning = errors.length ? 'Some game sources unavailable: ' + errors.join('; ') : '';
+      if (gameCatalogWarning) {
+        try { console.warn('[Mono games]', gameCatalogWarning); } catch (e) {}
+      }
+      var combined = [];
+      var seen = Object.create(null);
+      catalogs[0].forEach(function (game) {
+        var key = game.source + '|' + game.url;
+        if (seen[key]) return;
+        seen[key] = true;
+        combined.push(game);
+      });
+      catalogs[1].forEach(function (game) {
+        var item = Object.assign({}, game, {
+          source: 'Mono GN-Math',
+          fetchGame: true,
+          monoCatalog: true
+        });
+        var key = item.source + '|' + item.url;
+        if (seen[key]) return;
+        seen[key] = true;
+        combined.push(item);
+      });
+      return combined;
+    });
+  }
+
   function gameCountLabel(shown) {
     if (!els.gamesSub) return;
     var total = gameCatalog ? gameCatalog.length : 0;
     if (!total) { els.gamesSub.textContent = ''; return; }
-    els.gamesSub.textContent = shown === total ? total + ' games' : shown + ' of ' + total + ' games';
+    els.gamesSub.textContent = (shown === total ? total + ' games' : shown + ' of ' + total + ' games') +
+      (gameCatalogWarning ? ' · ' + gameCatalogWarning : '');
   }
 
   function gameEmptyNote(show) {
@@ -4180,16 +4404,40 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       note.id = 'gameEmpty';
       note.className = 'game-empty';
       note.textContent = 'No games match that search.';
-      els.gameGrid.appendChild(note);
     }
+    if (note && show && els.gameGrid && !note.parentNode) els.gameGrid.appendChild(note);
     if (note) note.hidden = !show;
   }
 
-  function renderGameGrid(list) {
+  function populateGameSources() {
+    if (!els.gameSourceFilter || !gameCatalog) return;
+    var counts = Object.create(null);
+    gameCatalog.forEach(function (game) {
+      counts[game.source] = (counts[game.source] || 0) + 1;
+    });
+    var selected = els.gameSourceFilter.value || 'all';
+    els.gameSourceFilter.textContent = '';
+    var all = document.createElement('option');
+    all.value = 'all';
+    all.textContent = 'All sources';
+    els.gameSourceFilter.appendChild(all);
+    Object.keys(counts).sort().forEach(function (source) {
+      var option = document.createElement('option');
+      option.value = source;
+      option.textContent = source + ' (' + counts[source] + ')';
+      els.gameSourceFilter.appendChild(option);
+    });
+    els.gameSourceFilter.value = Object.prototype.hasOwnProperty.call(counts, selected) ? selected : 'all';
+  }
+
+  function appendGameCards() {
     if (!els.gameGrid) return;
-    els.gameGrid.textContent = '';
+    var previousMore = els.gameGrid.querySelector('.game-load-more');
+    if (previousMore) previousMore.remove();
+    var end = Math.min(renderedGameCount + GAME_PAGE_SIZE, filteredGameCatalog.length);
     var frag = document.createDocumentFragment();
-    list.forEach(function (g) {
+    for (var i = renderedGameCount; i < end; i += 1) {
+      var g = filteredGameCatalog[i];
       var card = document.createElement('button');
       card.type = 'button';
       card.className = 'game-card';
@@ -4206,23 +4454,132 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       img.alt = '';
       img.loading = 'lazy';
       img.decoding = 'async';
-      gameCover(img, g.id);
+      gameCover(img, g);
 
       var label = document.createElement('span');
       label.className = 'game-name';
       label.textContent = g.name;
 
       art.appendChild(initial);
-      art.appendChild(img);
+      if (img.getAttribute('src')) art.appendChild(img);
       card.appendChild(art);
       card.appendChild(label);
-      card.addEventListener('click', function () { openGame(g); });
+      card.addEventListener('click', (function (game) {
+        return function () { openGame(game); };
+      })(g));
       frag.appendChild(card);
-    });
+    }
+    renderedGameCount = end;
+    if (end < filteredGameCatalog.length) {
+      var more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'ghost-btn game-load-more';
+      more.textContent = 'Show more games';
+      more.addEventListener('click', appendGameCards);
+      frag.appendChild(more);
+    }
     els.gameGrid.appendChild(frag);
-    gameEmptyNote(false);
-    gameCountLabel(list.length);
+    gameEmptyNote(filteredGameCatalog.length === 0);
+    gameCountLabel(filteredGameCatalog.length);
     els.gameGrid.hidden = false;
+  }
+
+  function renderGameGrid(list) {
+    if (!els.gameGrid) return;
+    filteredGameCatalog = list;
+    renderedGameCount = 0;
+    els.gameGrid.textContent = '';
+    appendGameCards();
+  }
+
+  function filterGames() {
+    if (!gameCatalog) return;
+    var q = els.gameSearch ? els.gameSearch.value.trim().toLowerCase() : '';
+    var source = els.gameSourceFilter ? els.gameSourceFilter.value : 'all';
+    renderGameGrid(gameCatalog.filter(function (game) {
+      var matchesSource = source === 'all' || game.source === source;
+      var searchText = (game.name + ' ' + game.source + ' ' + (game.category || '')).toLowerCase();
+      return matchesSource && (!q || searchText.indexOf(q) >= 0);
+    }));
+  }
+
+  function withGameBase(html, url) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    if (!doc.querySelector('base')) {
+      var base = doc.createElement('base');
+      base.href = url;
+      doc.head.insertBefore(base, doc.head.firstChild);
+    }
+    return '<!doctype html>\n' + doc.documentElement.outerHTML;
+  }
+
+  function fetchMonoGameHtml(g) {
+    var file = g.url.split('/').pop();
+    var base = GAMES_HTML_BASE + file;
+    var sources = [
+      base,
+      cfUrl(base),
+      'https://cdn.statically.io/gh/gn-math/html/main/' + file,
+      'https://rawcdn.githack.com/gn-math/html/main/' + file,
+      GAMES_NPM_BASE + file
+    ];
+    var pull = sources.map(function (src) {
+      return function () {
+        return fetchWithTimeout(src, 16000).catch(function (e) {
+          throw new Error(hostOf(src) + ' ' + shortErr(e));
+        }).then(function (res) {
+          if (!res.ok) throw new Error(hostOf(src) + ' HTTP ' + res.status);
+          return res.text();
+        }).then(function (html) {
+          if (!html || html.length < 120 || html.indexOf('<') < 0) throw new Error('not a game page');
+          if (looksBlocked(html)) throw new Error('blocked page');
+          return { html: stripGameAds(html), url: base };
+        });
+      };
+    });
+    return tryEach(pull);
+  }
+
+  function fetchImportedGameHtml(g) {
+    var sources = [g.url];
+    var match = g.url.match(/^https:\/\/cdn\.jsdelivr\.net\/gh\/([^/]+)\/([^/@]+)@([^/]+)\/(.+)$/i);
+    if (match) sources.push('https://raw.githubusercontent.com/' + match[1] + '/' + match[2] + '/' + match[3] + '/' + match[4]);
+    var pull = sources.map(function (src) {
+      return function () {
+        return fetchWithTimeout(src, 18000).catch(function (e) {
+          throw new Error(hostOf(src) + ' ' + shortErr(e));
+        }).then(function (res) {
+          if (!res.ok) throw new Error(hostOf(src) + ' HTTP ' + res.status);
+          return res.text();
+        }).then(function (html) {
+          if (!html || html.length < 120 || html.indexOf('<') < 0) throw new Error('not a game page');
+          if (looksBlocked(html)) throw new Error('blocked page');
+          return { html: stripGameAds(html), url: src };
+        });
+      };
+    });
+    return tryEach(pull);
+  }
+
+  function mountGameFrame(g, page) {
+    if (!els.gameWrap || gameSource !== 'bulk' || !gamePlaying) return;
+    var frame = document.createElement('iframe');
+    frame.title = g.name;
+    frame.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; gamepad';
+    frame.setAttribute('allowfullscreen', '');
+    frame.setAttribute('sandbox', 'allow-scripts allow-pointer-lock allow-forms allow-popups allow-modals');
+    gameFrame = frame;
+    els.gameWrap.appendChild(frame);
+    if (els.gameFill) els.gameFill.style.width = '85%';
+    frame.addEventListener('load', function () {
+      if (gameFrame !== frame) return;
+      if (els.gameFill) els.gameFill.style.width = '100%';
+      window.setTimeout(function () {
+        if (gameFrame === frame && els.gameLoad) els.gameLoad.classList.add('done');
+      }, 250);
+    });
+    if (page) frame.srcdoc = withGameBase(page.html, page.url);
+    else frame.src = g.url;
   }
 
   function openGame(g) {
@@ -4236,6 +4593,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       els.gameBack.hidden = false;
     }
     if (els.gameSearch) els.gameSearch.hidden = true;
+    if (els.gameSourceFilter) els.gameSourceFilter.hidden = true;
     if (els.gameGrid) els.gameGrid.hidden = true;
     els.gameWrap.textContent = '';
     els.gameWrap.hidden = false;
@@ -4247,54 +4605,20 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     if (els.gameFill) els.gameFill.style.width = '20%';
     if (els.gameRetry) els.gameRetry.hidden = true;
 
-    var file = g.url.split('/').pop();
-    var sources = [
-      GAMES_HTML_BASE + file,
-      cfUrl(GAMES_HTML_BASE + file),
-      'https://cdn.statically.io/gh/gn-math/html/main/' + file,
-      'https://rawcdn.githack.com/gn-math/html/main/' + file,
-      GAMES_NPM_BASE + file
-    ];
-
-    var pull = sources.map(function (src) {
-      return function () {
-        return fetchWithTimeout(src, 16000).catch(function (e) {
-          throw new Error(hostOf(src) + ' ' + shortErr(e));
-        }).then(function (res) {
-          if (!res.ok) throw new Error(hostOf(src) + ' HTTP ' + res.status);
-          return res.text();
-        }).then(function (html) {
-          if (!html || html.length < 120 || html.indexOf('<') < 0) throw new Error('not a game page');
-          if (looksBlocked(html)) throw new Error('blocked page');
-          return stripGameAds(html);
-        });
-      };
-    });
-
-    tryEach(pull).then(function (html) {
-      if (!els.gameWrap || gameSource !== 'bulk' || (els.gameGrid && !els.gameGrid.hidden)) return;
-      var frame = document.createElement('iframe');
-      frame.title = g.name;
-      frame.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; gamepad';
-      frame.setAttribute('allowfullscreen', '');
-      /* Third-party game code runs isolated from Mono (no same-origin access to
-         your settings, notes or AI key). */
-      frame.setAttribute('sandbox', 'allow-scripts allow-pointer-lock allow-forms allow-popups allow-modals');
-      gameFrame = frame;
-      els.gameWrap.appendChild(frame);
-      if (els.gameFill) els.gameFill.style.width = '85%';
-      frame.addEventListener('load', function () {
-        if (gameFrame !== frame) return;
-        if (els.gameFill) els.gameFill.style.width = '100%';
-        window.setTimeout(function () {
-          if (gameFrame === frame && els.gameLoad) els.gameLoad.classList.add('done');
-        }, 250);
-      });
-      frame.srcdoc = html;
+    var loading = g.monoCatalog ? fetchMonoGameHtml(g) :
+      (g.fetchGame ? fetchImportedGameHtml(g) : Promise.resolve(null));
+    loading.then(function (page) {
+      if (!page && g.fetchGame) throw new Error('game page unavailable');
+      mountGameFrame(g, page);
     }).catch(function (err) {
-      if (gameSource === 'bulk' && gamePlaying) {
-        gameFail('Could not load ' + g.name + ' (' + shortErr(err) + ')', function () { openGame(g); });
+      if (gameSource !== 'bulk' || !gamePlaying) return;
+      if (!g.monoCatalog && g.frameFallback) {
+        if (els.gameStatus) els.gameStatus.textContent = 'Opening the direct game page';
+        try { console.warn('[Mono games]', g.name + ' fetch failed; trying direct source (' + shortErr(err) + ')'); } catch (e) {}
+        mountGameFrame(g, null);
+        return;
       }
+      gameFail('Could not load ' + g.name + ' (' + shortErr(err) + ')', function () { openGame(g); });
     });
   }
 
@@ -4313,29 +4637,18 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     }
     if (els.gameRetry) els.gameRetry.hidden = true;
     if (els.gameSearch) els.gameSearch.hidden = false;
+    if (els.gameSourceFilter) els.gameSourceFilter.hidden = false;
     if (els.gamesTitle) els.gamesTitle.textContent = 'Bulk Games';
-    gameCountLabel(gameCatalog ? gameCatalog.length : 0);
+    filterGames();
     if (els.gameLoad) els.gameLoad.classList.add('done');
-  }
-
-  function filterGames() {
-    var q = els.gameSearch ? els.gameSearch.value.trim().toLowerCase() : '';
-    var cards = els.gameGrid ? els.gameGrid.querySelectorAll('.game-card') : [];
-    var shown = 0;
-    Array.prototype.forEach.call(cards, function (card) {
-      var hit = !q || (card.getAttribute('data-name') || '').indexOf(q) >= 0;
-      card.hidden = !hit;
-      if (hit) shown += 1;
-    });
-    gameEmptyNote(shown === 0);
-    gameCountLabel(shown);
   }
 
   function startGames() {
     if (!els.gameGrid || !els.gameWrap) return;
     if (gameSource !== 'bulk') return;
     if (gameCatalog) {
-      renderGameGrid(gameCatalog);
+      populateGameSources();
+      filterGames();
       if (els.gameLoad) els.gameLoad.classList.add('done');
       return;
     }
@@ -4351,8 +4664,9 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     loadGameCatalog().then(function (list) {
       gameCatalog = list;
       if (gameSource !== 'bulk') return;
+      populateGameSources();
       if (els.gameFill) els.gameFill.style.width = '100%';
-      renderGameGrid(list);
+      filterGames();
       if (els.gameLoad) els.gameLoad.classList.add('done');
     }).catch(function (err) {
       if (gameSource === 'bulk') gameFail('Games could not load (' + shortErr(err) + ')', startGames);
@@ -4378,6 +4692,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       if (els.gamesTitle) els.gamesTitle.textContent = 'Games';
       if (els.gamesSub) els.gamesSub.textContent = 'Choose a collection to explore';
       if (els.gameSearch) els.gameSearch.hidden = true;
+      if (els.gameSourceFilter) els.gameSourceFilter.hidden = true;
       if (els.gameGrid) els.gameGrid.hidden = true;
       if (els.gameLoad) els.gameLoad.hidden = true;
       return;
@@ -4387,6 +4702,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       if (els.gamesTitle) els.gamesTitle.textContent = 'Cloud Gaming';
       if (els.gamesSub) els.gamesSub.textContent = 'Choose a service to open in a new tab.';
       if (els.gameSearch) els.gameSearch.hidden = true;
+      if (els.gameSourceFilter) els.gameSourceFilter.hidden = true;
       if (els.gameGrid) els.gameGrid.hidden = true;
       if (els.gameLoad) els.gameLoad.hidden = true;
       if (els.gameBack) {
@@ -4400,6 +4716,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
       if (els.gamesTitle) els.gamesTitle.textContent = 'Bulk Games';
       if (els.gamesSub) els.gamesSub.textContent = '';
       if (els.gameSearch) els.gameSearch.hidden = false;
+      if (els.gameSourceFilter) els.gameSourceFilter.hidden = false;
       if (els.gameBack) {
         els.gameBack.textContent = 'Collections';
         els.gameBack.hidden = false;
@@ -4413,6 +4730,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
     if (els.gamesTitle) els.gamesTitle.textContent = 'Popular Games';
     if (els.gamesSub) els.gamesSub.textContent = 'Curated collection from Northstar Hub';
     if (els.gameSearch) els.gameSearch.hidden = true;
+    if (els.gameSourceFilter) els.gameSourceFilter.hidden = true;
     if (els.gameBack) {
       els.gameBack.textContent = 'Collections';
       els.gameBack.hidden = false;
@@ -5029,6 +5347,7 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
   });
   if (els.gameRetry) els.gameRetry.addEventListener('click', function () { if (gameRetryFn) gameRetryFn(); });
   if (els.gameSearch) els.gameSearch.addEventListener('input', filterGames);
+  if (els.gameSourceFilter) els.gameSourceFilter.addEventListener('change', filterGames);
   if (els.gameBulkBtn) els.gameBulkBtn.addEventListener('click', function () { selectGameSource('bulk'); });
   if (els.gamePopularBtn) els.gamePopularBtn.addEventListener('click', function () { selectGameSource('popular'); });
   if (els.gameCloudBtn) els.gameCloudBtn.addEventListener('click', function () { selectGameSource('cloud'); });
@@ -6183,6 +6502,364 @@ body:not([data-mode="browser"]) .tab[aria-selected="true"]::before{height:0}
 
   })();
 
+</script>
+<script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://kisimofppgbhonkikogm.supabase.co';
+  var SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LsNNb1_R8Dv_7MHjAX9Cow_ZO9cE-dD';
+  var ANNOUNCEMENT_PASSWORD = 'adminkey123';
+  var ANNOUNCEMENT_TABLE = SUPABASE_URL + '/rest/v1/mono_announcements';
+  var DISMISSED_KEY = 'mono.announcement.dismissed.v1';
+  var banner = document.getElementById('announcementBanner');
+  var bannerText = document.getElementById('announcementText');
+  var dismissButton = document.getElementById('announcementDismiss');
+  var loginForm = document.getElementById('adminUnlockForm');
+  var passwordInput = document.getElementById('adminPassword');
+  var lockedPanel = document.getElementById('adminLocked');
+  var editorPanel = document.getElementById('adminEditor');
+  var announcementForm = document.getElementById('announcementForm');
+  var messageInput = document.getElementById('announcementMessage');
+  var clearButton = document.getElementById('announcementClear');
+  var attackButton = document.getElementById('sahurAttack');
+  var logoutButton = document.getElementById('adminLogout');
+  var attackLayer = document.getElementById('sahurAttackLayer');
+  var attackAnnouncement = document.getElementById('sahurAttackAnnouncement');
+  var sahurTemplate = document.querySelector('#sahurPet svg');
+  var status = document.getElementById('adminStatus');
+  var adminPassword = '';
+  var currentAnnouncement = null;
+  var lastSahurAttackId = null;
+  var sawInitialAttackId = false;
+  var sahurAttackGeneration = 0;
+  var attackCooldownUntil = 0;
+  var attackAnnouncementTimer = 0;
+  var loadingAnnouncement = false;
+
+  function setStatus(message, state) {
+    status.textContent = message;
+    status.dataset.state = state || '';
+  }
+
+  function announcementRequest(path, method, body, prefer) {
+    var headers = {
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY
+    };
+    var options = { method: method, headers: headers, cache: 'no-store' };
+    if (body) {
+      headers['Content-Type'] = 'application/json';
+      headers.Prefer = prefer || 'return=minimal';
+      options.body = JSON.stringify(body);
+    }
+    return fetch(ANNOUNCEMENT_TABLE + path, options).then(function (response) {
+      return response.text().then(function (text) {
+        var result = null;
+        if (text) {
+          try { result = JSON.parse(text); } catch (error) {
+            throw new Error('Supabase returned an invalid announcement response.');
+          }
+        }
+        if (!response.ok) {
+          var detail = result && result.message ? result.message : 'HTTP ' + response.status;
+          if (response.status === 401 || response.status === 403) {
+            detail += ' — run announcement-setup.sql in the Supabase SQL Editor.';
+          }
+          throw new Error(detail);
+        }
+        return result;
+      });
+    });
+  }
+
+  function wasDismissed(announcement) {
+    try { return localStorage.getItem(DISMISSED_KEY) === announcement.updatedAt; }
+    catch (error) { return false; }
+  }
+
+  function renderAnnouncement() {
+    if (!banner || !bannerText) return;
+    if (!currentAnnouncement || wasDismissed(currentAnnouncement)) {
+      banner.hidden = true;
+      return;
+    }
+    bannerText.textContent = currentAnnouncement.message;
+    banner.hidden = false;
+  }
+
+  function loadAnnouncement() {
+    if (loadingAnnouncement) return Promise.resolve(currentAnnouncement);
+    loadingAnnouncement = true;
+    var attackGeneration = sahurAttackGeneration;
+    return announcementRequest('?id=eq.1&select=message,updated_at,active,sahur_attack_id&limit=1', 'GET').then(function (rows) {
+      var row = Array.isArray(rows) ? rows[0] : null;
+      currentAnnouncement = row && row.active && typeof row.message === 'string' &&
+        typeof row.updated_at === 'string' ? { message: row.message, updatedAt: row.updated_at } : null;
+      if (attackGeneration === sahurAttackGeneration) {
+        var attackId = row && typeof row.sahur_attack_id === 'string' ? row.sahur_attack_id : null;
+        if (!sawInitialAttackId) {
+          lastSahurAttackId = attackId;
+          sawInitialAttackId = true;
+        } else if (attackId && attackId !== lastSahurAttackId) {
+          lastSahurAttackId = attackId;
+          runSahurAttack();
+        }
+      }
+      renderAnnouncement();
+      return currentAnnouncement;
+    }).catch(function (error) {
+      console.warn('[Mono announcements] Could not load the current announcement:', error);
+      throw error;
+    }).then(function (announcement) {
+      loadingAnnouncement = false;
+      return announcement;
+    }, function (error) {
+      loadingAnnouncement = false;
+      throw error;
+    });
+  }
+
+  function setAdminBusy(busy) {
+    document.getElementById('adminUnlock').disabled = busy;
+    document.getElementById('announcementPublish').disabled = busy;
+    clearButton.disabled = busy;
+    attackButton.disabled = busy || Date.now() < attackCooldownUntil;
+  }
+
+  function runSahurAttack() {
+    if (!attackLayer || !sahurTemplate) {
+      console.error('[Mono announcements] The Sahur attack artwork is missing.');
+      return;
+    }
+    if (attackAnnouncement) {
+      attackAnnouncement.hidden = false;
+      window.clearTimeout(attackAnnouncementTimer);
+      attackAnnouncementTimer = window.setTimeout(function () {
+        attackAnnouncement.hidden = true;
+      }, 6000);
+    }
+    attackLayer.replaceChildren();
+    var reduceMotion = false;
+    try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (error) { console.warn('[Mono announcements] Could not check motion preference:', error); }
+    var petWidth = 58;
+    var petHeight = 62;
+    var width = Math.max(window.innerWidth - petWidth, 1);
+    var height = Math.max(window.innerHeight - petHeight, 1);
+    var now = performance.now();
+    var pets = [];
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < 100; i += 1) {
+      var invader = document.createElement('div');
+      invader.className = 'sahur-invader';
+      var svg = sahurTemplate.cloneNode(true);
+      svg.querySelectorAll('[id]').forEach(function (element) {
+        element.removeAttribute('id');
+      });
+      invader.appendChild(svg);
+      var pet = {
+        element: invader,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        targetX: 0,
+        targetY: 0,
+        pauseUntil: now + Math.random() * 800
+      };
+      pet.targetX = Math.random() * width;
+      pet.targetY = Math.random() * height;
+      invader.style.transform = 'translate3d(' + pet.x + 'px,' + pet.y + 'px,0)';
+      pets.push(pet);
+      fragment.appendChild(invader);
+    }
+
+    attackLayer.appendChild(fragment);
+
+    var previousTime = 0;
+    function wander(time) {
+      if (!attackLayer.contains(pets[0] && pets[0].element)) return;
+      if (document.hidden) {
+        previousTime = 0;
+        window.requestAnimationFrame(wander);
+        return;
+      }
+      var elapsed = previousTime ? Math.min((time - previousTime) / 1000, 0.05) : 0;
+      previousTime = time;
+      var speed = reduceMotion ? 28 : 64;
+
+      pets.forEach(function (pet) {
+        if (time < pet.pauseUntil) return;
+        var dx = pet.targetX - pet.x;
+        var dy = pet.targetY - pet.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 5) {
+          pet.element.classList.remove('is-walking');
+          pet.pauseUntil = time + 700 + Math.random() * 1400;
+          pet.targetX = Math.random() * Math.max(window.innerWidth - petWidth, 1);
+          pet.targetY = Math.random() * Math.max(window.innerHeight - petHeight, 1);
+          return;
+        }
+
+        pet.element.classList.add('is-walking');
+        var facingLeft = dx < 0;
+        var wasFacingLeft = pet.element.classList.contains('is-facing-left');
+        if (facingLeft !== wasFacingLeft) {
+          pet.element.classList.toggle('is-facing-left', facingLeft);
+          var label = pet.element.querySelector('text');
+          if (label) {
+            if (facingLeft) label.setAttribute('transform', 'translate(131 0) scale(-1 1)');
+            else label.removeAttribute('transform');
+          }
+        }
+        var step = Math.min(distance, speed * elapsed);
+        pet.x += dx / distance * step;
+        pet.y += dy / distance * step;
+        pet.element.style.transform = 'translate3d(' + pet.x + 'px,' + pet.y + 'px,0)';
+      });
+
+      window.requestAnimationFrame(wander);
+    }
+
+    window.requestAnimationFrame(wander);
+  }
+
+  function createAttackId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
+      var random = Math.random() * 16 | 0;
+      return (char === 'x' ? random : (random & 3 | 8)).toString(16);
+    });
+  }
+
+  function lockAdmin() {
+    adminPassword = '';
+    messageInput.value = '';
+    editorPanel.hidden = true;
+    lockedPanel.hidden = false;
+    setStatus('Admin locked.');
+  }
+
+  loginForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var candidate = passwordInput.value;
+    if (!candidate) return;
+    setAdminBusy(true);
+    setStatus('Checking password…');
+    if (candidate !== ANNOUNCEMENT_PASSWORD) {
+      passwordInput.value = '';
+      setStatus('Incorrect admin password.', 'error');
+      setAdminBusy(false);
+      return;
+    }
+    adminPassword = candidate;
+    passwordInput.value = '';
+    lockedPanel.hidden = true;
+    editorPanel.hidden = false;
+    setStatus('Admin unlocked.', 'ok');
+    loadAnnouncement().then(function (announcement) {
+      messageInput.value = announcement ? announcement.message : '';
+    }).catch(function (error) {
+      setStatus(error.message || 'Could not load the current announcement.', 'error');
+    }).then(function () {
+      setAdminBusy(false);
+    });
+  });
+
+  announcementForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var message = messageInput.value.trim();
+    if (!adminPassword || !message) {
+      setStatus('Enter an announcement first.', 'error');
+      return;
+    }
+    setAdminBusy(true);
+    setStatus('Publishing announcement…');
+    var updatedAt = new Date().toISOString();
+    announcementRequest('?on_conflict=id', 'POST', {
+      id: 1,
+      message: message,
+      active: true,
+      updated_at: updatedAt,
+      sahur_attack_id: lastSahurAttackId
+    }, 'resolution=merge-duplicates,return=minimal').then(function () {
+      currentAnnouncement = { message: message, updatedAt: updatedAt };
+      renderAnnouncement();
+      setStatus('Announcement published for everyone.', 'ok');
+    }).catch(function (error) {
+      setStatus(error.message || 'Could not publish the announcement.', 'error');
+    }).then(function () {
+      setAdminBusy(false);
+    });
+  });
+
+  clearButton.addEventListener('click', function () {
+    if (!adminPassword) return;
+    setAdminBusy(true);
+    setStatus('Clearing announcement…');
+    announcementRequest('?id=eq.1', 'PATCH', {
+      active: false,
+      updated_at: new Date().toISOString()
+    }).then(function () {
+      currentAnnouncement = null;
+      messageInput.value = '';
+      renderAnnouncement();
+      setStatus('Announcement cleared for everyone.', 'ok');
+    }).catch(function (error) {
+      setStatus(error.message || 'Could not clear the announcement.', 'error');
+    }).then(function () {
+      setAdminBusy(false);
+    });
+  });
+
+  attackButton.addEventListener('click', function () {
+    if (!adminPassword || Date.now() < attackCooldownUntil) return;
+    var attackId = createAttackId();
+    var previousAttackId = lastSahurAttackId;
+    var previousSawInitialAttackId = sawInitialAttackId;
+    attackCooldownUntil = Date.now() + 5000;
+    sahurAttackGeneration += 1;
+    lastSahurAttackId = attackId;
+    sawInitialAttackId = true;
+    setAdminBusy(true);
+    setStatus('Sending Sahur attack to everyone…');
+    announcementRequest('?id=eq.1', 'PATCH', { sahur_attack_id: attackId }).then(function () {
+      runSahurAttack();
+      setStatus('100 Sahurs are attacking everyone’s screen!', 'ok');
+    }).catch(function (error) {
+      if (lastSahurAttackId === attackId) {
+        lastSahurAttackId = previousAttackId;
+        sawInitialAttackId = previousSawInitialAttackId;
+      }
+      attackCooldownUntil = 0;
+      setStatus(error.message || 'Could not send the Sahur attack.', 'error');
+    }).then(function () {
+      setAdminBusy(false);
+    });
+    window.setTimeout(function () { setAdminBusy(false); }, 5000);
+  });
+
+  logoutButton.addEventListener('click', function () {
+    lockAdmin();
+  });
+
+  document.addEventListener('mono:mode', function (event) {
+    if (event.detail !== 'admin' && adminPassword) lockAdmin();
+  });
+
+  dismissButton.addEventListener('click', function () {
+    if (currentAnnouncement) {
+      try { localStorage.setItem(DISMISSED_KEY, currentAnnouncement.updatedAt); }
+      catch (error) { console.warn('[Mono announcements] Could not save the dismissal:', error); }
+    }
+    renderAnnouncement();
+  });
+
+  loadAnnouncement().catch(function () {});
+  window.setInterval(function () { loadAnnouncement().catch(function () {}); }, 1000);
+})();
 </script>
 </body>
 </html>
