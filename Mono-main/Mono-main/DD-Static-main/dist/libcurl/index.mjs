@@ -6395,6 +6395,9 @@ var LibcurlClient = class {
     }
   }
   async init() {
+    // The bundled WASM starts loading during module evaluation; wait before
+    // constructing HTTPSession, which requires the runtime to be ready.
+    await libcurl.load_wasm();
     if (this.transport)
       libcurl.transport = this.transport;
     libcurl.set_websocket(this.wisp);
